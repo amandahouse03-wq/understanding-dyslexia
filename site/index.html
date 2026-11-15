@@ -99,7 +99,9 @@ a:focus-visible,button:focus-visible,video:focus-visible{outline:3px solid var(-
 /* videos */
 .vgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:20px}
 .vcard{border:var(--edge);border-radius:22px;padding:12px 12px 16px;box-shadow:var(--pop);display:flex;flex-direction:column;gap:10px;background:var(--c);min-width:0}
-.vcard video{display:block;width:100%;aspect-ratio:9/16;border:var(--edge);border-radius:14px;background:var(--home);object-fit:cover}
+.vcard video{display:block;width:100%;aspect-ratio:9/16;border:var(--edge);border-radius:14px;background:var(--home);object-fit:contain}
+.vcard video:fullscreen{border:0;border-radius:0;background:#000000}
+.vcard video:-webkit-full-screen{border:0;border-radius:0;background:#000000}
 .vcard h3{font-size:1.25rem;padding:0 4px}
 .vcard p{font-size:.92rem;padding:0 4px;line-height:1.4}
 
@@ -237,28 +239,28 @@ a:focus-visible,button:focus-visible,video:focus-visible{outline:3px solid var(-
     <div class="stack">
       <p class="eyebrow">Watch</p>
       <h2>Four short videos, in my own voice</h2>
-      <p>Each one is about 30 seconds and shows one moment from my school day. If you only have a couple of minutes, start here.</p>
+      <p>Each one is short and shows one moment from my school day. If you only have a couple of minutes, start here.</p>
     </div>
     <div class="vgrid">
       <div class="vcard" style="--c:var(--c-read)">
         <video controls playsinline preload="none" poster="posters/reading.jpg" aria-label="Video: what reading feels like with dyslexia"><source src="videos/reading.mp4" type="video/mp4"></video>
         <h3>Reading</h3>
-        <p>What happens when I stop to work out one word. 29 seconds.</p>
+        <p>What happens when I stop to work out one word.</p>
       </div>
       <div class="vcard" style="--c:var(--c-lec)">
         <video controls playsinline preload="none" poster="posters/lecture.jpg" aria-label="Video: what a lecture feels like with dyslexia"><source src="videos/lecture.mp4" type="video/mp4"></video>
         <h3>Lecture</h3>
-        <p>Keeping up with slides while the teacher keeps talking. 27 seconds.</p>
+        <p>Keeping up with slides while the teacher keeps talking.</p>
       </div>
       <div class="vcard" style="--c:var(--c-write)">
         <video controls playsinline preload="none" poster="posters/writing.jpg" aria-label="Video: what writing feels like with dysgraphia"><source src="videos/writing.mp4" type="video/mp4"></video>
         <h3>Writing</h3>
-        <p>Getting stuck on the spelling of a word I use every day. 39 seconds.</p>
+        <p>Getting stuck on the spelling of a word I use every day.</p>
       </div>
       <div class="vcard" style="--c:var(--c-math)">
         <video controls playsinline preload="none" poster="posters/math.jpg" aria-label="Video: what math feels like with dyscalculia"><source src="videos/math.mp4" type="video/mp4"></video>
         <h3>Math</h3>
-        <p>Numbers and decimal points that move around. 38 seconds.</p>
+        <p>Numbers and decimal points that move around.</p>
       </div>
     </div>
   </div>
@@ -275,7 +277,7 @@ a:focus-visible,button:focus-visible,video:focus-visible{outline:3px solid var(-
       <div class="card">
         <h3>What you will experience</h3>
         <ul class="parts">
-          <li style="--c:var(--c-read)"><span><b>Reading quiz</b>Words you know, but have never seen written, will not hold still. Working one out makes you lose what you just read.</span></li>
+          <li style="--c:var(--c-read)"><span><b>Reading quiz</b>Words you know, but have never seen written, will not hold still. Trying to understand a word makes you lose your understanding of what you just read.</span></li>
           <li style="--c:var(--c-lec)"><span><b>Lecture</b>The slides have more on them than the teacher says, and they change before you finish reading.</span></li>
           <li style="--c:var(--c-write)"><span><b>Written response</b>A full answer is already in your head. Your hand cannot keep up, and spelling stops you on ordinary words.</span></li>
           <li style="--c:var(--c-math)"><span><b>Math quiz</b>Digits trade places and decimal points drift, and every wrong reading still looks like a real number.</span></li>
@@ -289,7 +291,8 @@ a:focus-visible,button:focus-visible,video:focus-visible{outline:3px solid var(-
         </div>
         <div class="card">
           <h3>Who made it</h3>
-          <p>I built this simulation with my mom. I have dyslexia, and she works in educational software development. Every part follows what actually happens for me. Other people's experiences can be different.</p>
+          <p>This simulation was built by a student with dyslexia and someone who has worked in educational software development for decades.</p>
+          <p>Every part of it is as accurate as we could make it. Other people's experiences can be different.</p>
         </div>
       </div>
     </div>
@@ -323,9 +326,19 @@ a:focus-visible,button:focus-visible,video:focus-visible{outline:3px solid var(-
 
 <script>
 (function(){
-  // only one video plays at a time
+  // only one video plays at a time, and a video goes back to its start when the viewer moves on
   var vids = Array.prototype.slice.call(document.querySelectorAll('video'));
-  vids.forEach(function(v){ v.addEventListener('play', function(){ vids.forEach(function(o){ if (o !== v) o.pause(); }); }); });
+  function reset(v){ if (v.currentTime === 0 && v.paused) return; v.pause(); v.currentTime = 0; v.load(); }
+  vids.forEach(function(v){
+    v.addEventListener('play', function(){ vids.forEach(function(o){ if (o !== v) reset(o); }); });
+    v.addEventListener('ended', function(){ reset(v); });
+  });
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if (!e.isIntersecting && !document.fullscreenElement) reset(e.target); });
+    }, { threshold: 0.15 });
+    vids.forEach(function(v){ io.observe(v); });
+  }
   // share, with a copy-link fallback
   var btn = document.getElementById('share'), note = document.getElementById('copied');
   var url = location.href.split('#')[0];
