@@ -456,7 +456,7 @@ const LECTURE = [
   "William Marbury is one of them. But his commission never gets delivered.",
   "Jefferson's Secretary of State, James Madison, refuses to hand it over.",
   "Marbury sues, straight to the Supreme Court. The Chief Justice is John Marshall.",
-  "1803. Marshall says Marbury deserves the commission, but the Court can't order it.",
+  "1803. Marshall says Marbury deserves the commission, but the Court cannot order it.",
   "Why? The law that gave the Court that power, part of the Judiciary Act of 1789, conflicts with the Constitution.",
   "So the Court strikes that part down. That is judicial review. It will be on Friday's test.",
   "Marshall loses the small fight and wins the big one. Write that down."
@@ -488,6 +488,19 @@ const PROMPT = "Critics contend that compulsory service is antithetical to altru
 const synth = ('speechSynthesis' in window && 'SpeechSynthesisUtterance' in window) ? window.speechSynthesis : null;
 let stopSay = null, keepUtter = null;
 function hush(){ if (stopSay) stopSay(); stopSay = null; }
+/* The lecture uses recorded audio, one file per line, played through one element so phones allow it after the first tap. */
+const LEC_AUDIO = n => '/simulation/audio/lecture-' + (n + 1) + '.mp3';
+let lecAudio = null;
+function playLine(n, onEnd, onFail){
+  hush();
+  let done = false;
+  const a = lecAudio || (lecAudio = new Audio());
+  const fin = ok => { if (done) return; done = true; clearTimeout(t); a.onended = a.onerror = null; stopSay = null; if (ok) onEnd(); else { try { a.pause(); } catch (e) {} onFail(); } };
+  const t = setTimeout(() => { if (a.currentTime === 0) fin(false); }, 6000);
+  a.onended = () => fin(true); a.onerror = () => fin(false);
+  stopSay = () => { done = true; clearTimeout(t); a.onended = a.onerror = null; try { a.pause(); } catch (e) {} };
+  try { a.src = LEC_AUDIO(n); const p = a.play(); if (p && p.catch) p.catch(() => fin(false)); } catch (e) { fin(false); }
+}
 function say(text, onEnd, onFail){
   hush();
   if (!synth) { if (onFail) onFail(); return; }
@@ -727,7 +740,7 @@ function pre2(){
   between('Period 3 · Honors US History', 'Lecture', [
     'Mr. Lindqvist lectures for about a minute, with slides. He says each thing once. The slides carry more than he says, and he changes them before most people finish reading.',
     'Listening is easy for you. You will understand every word he says. Reading his slides while he talks is the hard part.',
-    synth ? 'Turn your sound on. A short quiz follows.' : 'A short quiz follows.',
+    'Turn your sound on. A short quiz follows.',
     state.sup.notes ? 'He has also given you a printed outline to use during the quiz.' : ''
   ].filter(Boolean), 'Start the lecture', run2);
 }
@@ -736,7 +749,7 @@ function run2(){
   $('#how2').replaceChildren(howBox((state.sup.audio || !state.inc.lit)
     ? ['Listen to Mr. Lindqvist and read his slides as they change. A short quiz follows.']
     : ['Listen to Mr. Lindqvist and read his slides as they change. A short quiz follows.', 'The slide text behaves like the reading passage. Hold your pointer on a moving word to work it out. On a touch screen, press and hold. The blur stands for losing the meaning, not for how the words look.']));
-  let i = -1, text = !synth, lt = null, over = false, cur = -1;
+  let i = -1, text = false, lt = null, over = false, cur = -1;
   const showSlide = n => {
     const sl = SLIDES[n], host = $('#slide'), h = el('h4'), ul = el('ul');
     h.append(rich(sl.t)); sl.b.forEach(b => { const li = el('li'); li.append(rich(b)); ul.append(li); });
@@ -751,10 +764,12 @@ function run2(){
     if (SLIDE_AT[i] !== cur) { cur = SLIDE_AT[i]; showSlide(cur); }
     if (feed[i]) $('#bellFeed').textContent = feed[i];
     if (text) { fallback(); lt = setTimeout(next, 7000); return; }
-    say(LECTURE[i], () => { lt = setTimeout(next, 600); }, () => { fallback(); lt = setTimeout(next, 7000); });
+    const n = i, after = () => { lt = setTimeout(next, 600); }, toText = () => { fallback(); lt = setTimeout(next, 7000); };
+    playLine(n, after, () => { if (over) return; say(LECTURE[n], after, toText); });
   };
   lecStop = () => { over = true; clearTimeout(lt); hush(); };
   stopTimer(); setBell('Period 3 · Honors US History', 'He does not repeat himself.');
+  LECTURE.forEach((_, n) => { if (n) { const pre = new Audio(); pre.preload = 'auto'; pre.src = LEC_AUDIO(n); } });
   show('p2'); next();
 }
 function quiz2(){
