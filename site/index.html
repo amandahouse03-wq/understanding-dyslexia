@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Understanding Dyslexia</title>
+<meta name="description" content="What school is really like with dyslexia, dysgraphia and dyscalculia, from a high school junior who lives it. Four short videos and an interactive simulation.">
+<link rel="canonical" href="https://www.understanding-dyslexia.com/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Understanding Dyslexia">
+<meta property="og:description" content="What school is really like with dyslexia, dysgraphia and dyscalculia, from a high school junior who lives it. Four short videos and an interactive simulation.">
+<meta property="og:url" content="https://www.understanding-dyslexia.com/">
+<meta property="og:image" content="https://www.understanding-dyslexia.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>html{color-scheme:light;-webkit-text-size-adjust:100%}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif:wght@400&display=swap">
+<style>
+/* Layout: full-width colored bands, each with one centered column. The four class colors from the simulation carry through the whole site. Single light look by design (Soft Pop). */
+:root{
+  color-scheme:light;
+  --ink:#2A2833; --paper:#FFFFFF; --muted:#5F5C6B; --ground:#F0F1F6; --home:#5E6FB8; --alert:#C4452F;
+  --c-read:#E79E8F; --c-lec:#A99BD9; --c-write:#E8C76A; --c-math:#8CC3A4;
+  --t-read:#FBEDEA; --t-lec:#F1EEFA; --t-write:#FAF4DF; --t-math:#EAF4EE;
+  --edge:1.5px solid var(--ink); --pop:4px 4px 0 var(--ink);
+  --f-display:"Bricolage Grotesque","Arial Narrow",Arial,sans-serif;
+  --f-body:"Atkinson Hyperlegible",Verdana,Arial,sans-serif;
+  --f-test:"Noto Serif",Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--f-body);font-size:18px;line-height:1.6}
+.in{max-width:1080px;margin:0 auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+.band{padding-block:64px}
+h1,h2,h3{font-family:var(--f-display);font-weight:800;line-height:1.06;margin:0;letter-spacing:-.015em;text-wrap:balance}
+h1{font-size:clamp(2.5rem,6vw,4.2rem);overflow-wrap:break-word}
+h2{font-size:clamp(2rem,5.5vw,3rem)}
+h3{font-size:1.45rem}
+p{margin:0;max-width:62ch}
+a{color:inherit}
+.eyebrow{display:inline-block;align-self:flex-start;background:var(--ink);color:#FFFFFF;font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:5px 13px;border-radius:999px}
+.stack{display:flex;flex-direction:column;gap:18px;min-width:0}
+.card{background:var(--paper);border:var(--edge);border-radius:20px;padding:24px;box-shadow:var(--pop);display:flex;flex-direction:column;gap:14px;min-width:0}
+.btn{display:inline-block;font-family:var(--f-display);font-weight:800;font-size:1.08rem;text-decoration:none;color:var(--ink);background:var(--paper);border:var(--edge);border-radius:999px;padding:13px 26px;cursor:pointer;box-shadow:3px 3px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn.sun{background:var(--c-write)}
+.btn.indigo{background:var(--home);color:#FFFFFF}
+a:focus-visible,button:focus-visible,video:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.hl{display:inline-block;color:var(--ink);background:var(--c-read);border:var(--edge);border-radius:.22em;padding:0 .16em;transform:rotate(-1.4deg)}
+.hl-b{background:var(--c-write);transform:rotate(1.1deg)}
+.hl-c{background:var(--c-math);transform:rotate(-.8deg)}
+.row{display:flex;flex-wrap:wrap;gap:14px}
+
+/* top bar */
+.top{background:var(--ink);color:#FFFFFF}
+.top .in{display:flex;flex-wrap:wrap;align-items:center;gap:6px 22px;padding-block:12px}
+.top b{font-family:var(--f-display);font-weight:800;font-size:1.1rem;margin-right:auto}
+.top a{text-decoration:none;font-size:.95rem;padding:4px 2px;border-bottom:2px solid transparent}
+.top a:hover{border-bottom-color:var(--c-write)}
+.top a:focus-visible{outline-color:#FFFFFF}
+
+/* hero */
+.hero{background:var(--home);color:#FFFFFF;border-bottom:var(--edge)}
+.hero .in{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:36px;align-items:center}
+.hero .lede{font-size:1.3rem;line-height:1.45;max-width:30ch}
+.hero .card{color:var(--ink);font-size:1.12rem}
+.hero .card p{max-width:none}
+.by{font-size:1rem;opacity:.95}
+
+/* what it's like */
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,235px),1fr));gap:20px}
+.like{border:var(--edge);border-radius:22px;padding:22px;box-shadow:var(--pop);display:flex;flex-direction:column;gap:10px;background:var(--c);min-width:0}
+.like .k{font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.like p{font-size:1.02rem;line-height:1.5}
+.motif{margin-top:auto;align-self:flex-start;display:inline-flex;align-items:center;min-height:46px;background:var(--paper);color:var(--ink);border:var(--edge);border-radius:12px;padding:8px 14px;font-family:var(--f-test);font-size:1.25rem;line-height:1}
+.motif i{font-style:normal;display:inline-block}
+.m-lec{flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;width:120px}
+.m-lec i{display:block;height:6px;border-radius:3px;background:var(--ink);width:100%;transform-origin:left}
+.m-lec i:nth-child(2){width:70%}
+.m-lec i:nth-child(3){width:45%}
+.m-write u{text-decoration:underline wavy var(--alert);text-underline-offset:3px}
+.m-write b{display:inline-block;width:2px;height:1.1em;background:var(--ink);margin-left:3px}
+.m-math{display:inline-grid;font-variant-numeric:tabular-nums}
+.m-math i{grid-area:1/1}
+.m-math i:last-child{opacity:0}
+.strength{background:var(--home);color:#FFFFFF;border:var(--edge);border-radius:24px;padding:30px 28px;box-shadow:var(--pop)}
+.strength p{font-family:var(--f-display);font-weight:800;font-size:clamp(1.5rem,4vw,2.2rem);line-height:1.2;max-width:26ch;letter-spacing:-.01em}
+
+/* why */
+.why{background:var(--t-write);border-block:var(--edge)}
+.letter{font-size:1.15rem;line-height:1.65;gap:18px;padding:30px}
+.letter p{max-width:60ch}
+.sig{font-family:var(--f-display);font-weight:800;font-size:1.3rem;line-height:1.2}
+.sig small{display:block;font-family:var(--f-body);font-weight:400;font-size:.98rem;color:var(--muted);margin-top:4px}
+
+/* videos */
+.vgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:20px}
+.vcard{border:var(--edge);border-radius:22px;padding:12px 12px 16px;box-shadow:var(--pop);display:flex;flex-direction:column;gap:10px;background:var(--c);min-width:0}
+.vcard video{display:block;width:100%;aspect-ratio:9/16;border:var(--edge);border-radius:14px;background:var(--home);object-fit:cover}
+.vcard h3{font-size:1.25rem;padding:0 4px}
+.vcard p{font-size:.92rem;padding:0 4px;line-height:1.4}
+
+/* simulation */
+.sim{background:var(--t-lec);border-block:var(--edge)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:24px;align-items:start}
+.parts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.parts li{display:flex;gap:12px;align-items:flex-start}
+.parts li::before{content:"";flex:0 0 14px;height:14px;margin-top:.5em;border-radius:50%;border:var(--edge);background:var(--c)}
+.parts b{display:block}
+.frame{border:var(--edge);border-radius:22px;overflow:hidden;box-shadow:var(--pop);background:var(--paper)}
+.frame iframe{display:block;width:100%;height:min(86vh,860px);min-height:620px;border:0}
+.framebar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:12px 16px;border-bottom:var(--edge);background:var(--c-lec)}
+.framebar b{font-family:var(--f-display);font-weight:800;margin-right:auto}
+.framebar .btn{font-size:.95rem;padding:7px 16px;box-shadow:2px 2px 0 var(--ink)}
+.phone-only{display:none}
+@media (max-width:760px){ .frame{display:none} .phone-only{display:flex} }
+
+/* talk + footer */
+.talk{background:var(--c-math);border-top:var(--edge)}
+.talk p{font-size:1.2rem}
+.foot{background:var(--ink);color:#FFFFFF;font-size:.95rem}
+.foot .in{padding-block:28px;display:flex;flex-direction:column;gap:6px}
+.foot small{font-size:.85rem;opacity:.85}
+.foot a:focus-visible{outline-color:#FFFFFF}
+#copied{font-size:1rem;min-height:1.6em}
+
+@keyframes blink{50%{opacity:0}}
+@keyframes jig{0%,60%,100%{transform:none}70%{transform:translate(2px,-7px) rotate(9deg)}85%{transform:translate(-2px,-3px) rotate(-7deg)}}
+@keyframes bar{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.35)}}
+@keyframes swapA{0%{opacity:1}50%{opacity:0}}
+@keyframes swapB{0%{opacity:0}50%{opacity:1}}
+@media (prefers-reduced-motion:no-preference){
+  .m-write b{animation:blink 1s steps(2) infinite}
+  .m-read i:nth-child(3){animation:jig 2.4s ease-in-out infinite}
+  .m-read i:nth-child(6){animation:jig 2.4s ease-in-out .8s infinite}
+  .m-read i:nth-child(9){animation:jig 2.4s ease-in-out 1.5s infinite}
+  .m-lec i{animation:bar 3s ease-in-out infinite}
+  .m-lec i:nth-child(2){animation-delay:.4s}
+  .m-lec i:nth-child(3){animation-delay:.8s}
+  .m-math i:first-child{animation:swapA 2.6s steps(1) infinite}
+  .m-math i:last-child{animation:swapB 2.6s steps(1) infinite}
+}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="in">
+    <b>Understanding Dyslexia</b>
+    <a href="#like">What it's like</a>
+    <a href="#why">Why I made this</a>
+    <a href="#videos">Videos</a>
+    <a href="#simulation">Simulation</a>
+  </div>
+</header>
+
+<main>
+<section class="hero band">
+  <div class="in">
+    <div class="stack">
+      <p class="eyebrow">In my own words</p>
+      <h1>Understanding Dyslexia</h1>
+      <p class="lede">What school is really like with <span class="hl">dyslexia</span>, <span class="hl hl-b">dysgraphia</span> and <span class="hl hl-c">dyscalculia</span>, from someone who lives it.</p>
+      <p class="by">By Jocelyn House, a junior at Xavier College Preparatory</p>
+      <div class="row">
+        <a class="btn sun" href="#videos">Watch the videos</a>
+        <a class="btn" href="#simulation">Try the simulation</a>
+      </div>
+    </div>
+    <div class="card">
+      <h3>What it's like, in a few sentences</h3>
+      <p>I have dyslexia, dysgraphia and dyscalculia. That doesn't mean I can't read, write or do math. It means my brain takes a different route to get there, and that route takes a lot more work.</p>
+      <p>It doesn't make me any less smart. Dyslexia is a strength, not a weakness. It has made me creative, independent and a problem solver.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="like">
+  <div class="in stack" style="gap:28px">
+    <div class="stack">
+      <p class="eyebrow">What it's like</p>
+      <h2>I know how. My brain just won't let me do it the usual way.</h2>
+      <p>People think dyslexia means you can't read. It's more than that. Here is what actually happens for me in four parts of a school day.</p>
+    </div>
+    <div class="grid4">
+      <div class="like" style="--c:var(--c-read)">
+        <span class="k">Reading · Dyslexia</span>
+        <h3>The meaning disappears</h3>
+        <p>I know the words. I use them all the time. But if I've never seen a word written down, I have to stop and work it out, and while I do, I lose my understanding of everything I just read. So I read it again. And again.</p>
+        <span class="motif m-read" aria-hidden="true"><i>p</i><i>a</i><i>r</i><i>a</i><i>d</i><i>o</i><i>x</i><i>i</i><i>c</i><i>a</i><i>l</i></span>
+      </div>
+      <div class="like" style="--c:var(--c-lec)">
+        <span class="k">Lectures · Dyslexia</span>
+        <h3>The slide is already gone</h3>
+        <p>My teacher talks fast, and the slides have even more on them than he says. I'm reading and listening at the same time, and reading takes me longer. Before I finish one slide, he's on the next.</p>
+        <span class="motif m-lec" aria-hidden="true"><i></i><i></i><i></i></span>
+      </div>
+      <div class="like" style="--c:var(--c-write)">
+        <span class="k">Writing · Dysgraphia</span>
+        <h3>My ideas are ahead of my hand</h3>
+        <p>I know exactly what I want to say and how to say it. Getting it out through handwriting is the hard part. Then I can't spell a word I say and write every day, and I have to decide: keep trying, or pick a different word.</p>
+        <span class="motif m-write" aria-hidden="true"><u>because</u><b></b></span>
+      </div>
+      <div class="like" style="--c:var(--c-math)">
+        <span class="k">Math · Dyscalculia</span>
+        <h3>The numbers move</h3>
+        <p>I know the formula and I know the steps. But 75 turns into 57, and decimal points slide. Every one of those is a real number, so nothing tells me I got it wrong. I check everything multiple times.</p>
+        <span class="motif m-math" aria-hidden="true"><i>75</i><i>57</i></span>
+      </div>
+    </div>
+    <div class="strength">
+      <p>None of this makes me less smart. It has made me creative, and it has made me a problem solver.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band why" id="why">
+  <div class="in stack" style="gap:24px">
+    <div class="stack">
+      <p class="eyebrow">Why I made this</p>
+      <h2>I want people to know what it's actually like</h2>
+    </div>
+    <div class="card letter">
+      <p>I was diagnosed with dyslexia in eighth grade, which is later than most people find out. All the way up until then, I had been problem solving for years. I didn't know that wasn't normal, or that everybody else wasn't working as hard as I was to get the same results.</p>
+      <p>When I finally found out I had dyslexia, it took me a while to understand it. Once I did, I started asking for help. I didn't always get the help I asked for.</p>
+      <p>That is why building this site and the simulation is so important to me. Dyslexia is not just that you can't read. It is more than that. I hope this helps people see what it's really like, have empathy, and be willing to help.</p>
+      <p class="sig">Jocelyn House<small>Junior, Xavier College Preparatory</small></p>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="videos">
+  <div class="in stack" style="gap:28px">
+    <div class="stack">
+      <p class="eyebrow">Watch</p>
+      <h2>Four short videos, in my own voice</h2>
+      <p>Each one is about 30 seconds and shows one moment from my school day. If you only have a couple of minutes, start here.</p>
+    </div>
+    <div class="vgrid">
+      <div class="vcard" style="--c:var(--c-read)">
+        <video controls playsinline preload="none" poster="posters/reading.jpg" aria-label="Video: what reading feels like with dyslexia"><source src="videos/reading.mp4" type="video/mp4"></video>
+        <h3>Reading</h3>
+        <p>What happens when I stop to work out one word. 29 seconds.</p>
+      </div>
+      <div class="vcard" style="--c:var(--c-lec)">
+        <video controls playsinline preload="none" poster="posters/lecture.jpg" aria-label="Video: what a lecture feels like with dyslexia"><source src="videos/lecture.mp4" type="video/mp4"></video>
+        <h3>Lecture</h3>
+        <p>Keeping up with slides while the teacher keeps talking. 27 seconds.</p>
+      </div>
+      <div class="vcard" style="--c:var(--c-write)">
+        <video controls playsinline preload="none" poster="posters/writing.jpg" aria-label="Video: what writing feels like with dysgraphia"><source src="videos/writing.mp4" type="video/mp4"></video>
+        <h3>Writing</h3>
+        <p>Getting stuck on the spelling of a word I use every day. 39 seconds.</p>
+      </div>
+      <div class="vcard" style="--c:var(--c-math)">
+        <video controls playsinline preload="none" poster="posters/math.jpg" aria-label="Video: what math feels like with dyscalculia"><source src="videos/math.mp4" type="video/mp4"></video>
+        <h3>Math</h3>
+        <p>Numbers and decimal points that move around. 38 seconds.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band sim" id="simulation">
+  <div class="in stack" style="gap:28px">
+    <div class="stack">
+      <p class="eyebrow">Try it</p>
+      <h2>The simulation: sit in my seat for four classes</h2>
+      <p>The videos show you what it's like. The simulation lets you feel it. You take a reading quiz, follow a lecture, write a timed response and take a math quiz, and the page makes reading, writing and numbers work the way they do for me.</p>
+    </div>
+    <div class="cols">
+      <div class="card">
+        <h3>What you will experience</h3>
+        <ul class="parts">
+          <li style="--c:var(--c-read)"><span><b>Reading quiz</b>Words you know, but have never seen written, will not hold still. Working one out makes you lose what you just read.</span></li>
+          <li style="--c:var(--c-lec)"><span><b>Lecture</b>The slides have more on them than the teacher says, and they change before you finish reading.</span></li>
+          <li style="--c:var(--c-write)"><span><b>Written response</b>A full answer is already in your head. Your hand cannot keep up, and spelling stops you on ordinary words.</span></li>
+          <li style="--c:var(--c-math)"><span><b>Math quiz</b>Digits trade places and decimal points drift, and every wrong reading still looks like a real number.</span></li>
+        </ul>
+      </div>
+      <div class="stack">
+        <div class="card">
+          <h3>Before you start</h3>
+          <p>It takes 10 to 15 minutes, and you can jump to any part or stop whenever you want.</p>
+          <p>It is not a test and your score does not matter. The point is to notice what it takes to try: how long things take, what slips away while you work, and what you start doing to cope.</p>
+        </div>
+        <div class="card">
+          <h3>Who made it</h3>
+          <p>I built this simulation with my mom. I have dyslexia, and she works in educational software development. Every part follows what actually happens for me. Other people's experiences can be different.</p>
+        </div>
+      </div>
+    </div>
+    <div class="frame">
+      <div class="framebar"><b>The simulation</b><a class="btn" href="simulation/index.html">Open it full screen</a></div>
+      <iframe src="simulation/index.html" title="Simulation of a school day with dyslexia, dysgraphia and dyscalculia" loading="lazy"></iframe>
+    </div>
+    <div class="phone-only row">
+      <a class="btn indigo" href="simulation/index.html">Start the simulation</a>
+    </div>
+  </div>
+</section>
+
+<section class="band talk" id="talk">
+  <div class="in stack">
+    <h2>Now talk about it</h2>
+    <p>If this changed how you think about dyslexia, tell someone. Show a friend, a teacher or a parent, and talk about what it felt like. That is how people start to understand.</p>
+    <div class="row"><button class="btn" type="button" id="share">Share this site</button></div>
+    <p id="copied" role="status" aria-live="polite"></p>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="in">
+    <span>Made by Jocelyn House, a junior at Xavier College Preparatory.</span>
+    <small>This site shares one student's experience. It is not medical advice or a way to diagnose anyone.</small>
+    <small>Contact: amandahouse03@gmail.com</small>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // only one video plays at a time
+  var vids = Array.prototype.slice.call(document.querySelectorAll('video'));
+  vids.forEach(function(v){ v.addEventListener('play', function(){ vids.forEach(function(o){ if (o !== v) o.pause(); }); }); });
+  // share, with a copy-link fallback
+  var btn = document.getElementById('share'), note = document.getElementById('copied');
+  var url = location.href.split('#')[0];
+  btn.addEventListener('click', function(){
+    var data = { title: 'Understanding Dyslexia', text: 'This is what school feels like with dyslexia, dysgraphia and dyscalculia.', url: url };
+    if (navigator.share) { navigator.share(data).catch(function(){}); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function(){ note.textContent = 'Link copied. Paste it into a message to share it.'; }, function(){ note.textContent = 'Copy this link to share it: ' + url; });
+    } else note.textContent = 'Copy this link to share it: ' + url;
+  });
+})();
+</script>
+</body>
+</html>

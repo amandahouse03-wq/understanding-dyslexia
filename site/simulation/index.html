@@ -1,0 +1,971 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Simulation | Understanding Dyslexia</title>
+<meta name="description" content="An interactive simulation of a school day with dyslexia, dysgraphia and dyscalculia: a reading quiz, a lecture, a written response and a math quiz.">
+<link rel="canonical" href="https://www.understanding-dyslexia.com/simulation/">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="The Simulation | Understanding Dyslexia">
+<meta property="og:description" content="An interactive simulation of a school day with dyslexia, dysgraphia and dyscalculia: a reading quiz, a lecture, a written response and a math quiz.">
+<meta property="og:url" content="https://www.understanding-dyslexia.com/simulation/">
+<meta property="og:image" content="https://www.understanding-dyslexia.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>html{color-scheme:light;-webkit-text-size-adjust:100%}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif:wght@400;600&family=Patrick+Hand&family=Reenie+Beanie&display=swap">
+<style>
+/* Layout: one column of thin-outlined cards under a sticky bar. Each class period owns a dusty color, and the page tint follows it. Single light look by design (Soft Pop). */
+:root{
+  color-scheme:light;
+  --ink:#2A2833; --paper:#FFFFFF; --muted:#5F5C6B; --sun:#E8C76A; --alert:#C4452F; --rule:#D5DCEB;
+  --zone:#5E6FB8; --zone-ink:#FFFFFF; --tint:#F0F1F6;
+  --c-read:#E79E8F; --c-lec:#A99BD9; --c-write:#E8C76A; --c-math:#8CC3A4;
+  --edge:1.5px solid var(--ink); --pop:4px 4px 0 var(--ink);
+  --f-display:"Bricolage Grotesque","Arial Narrow",Arial,sans-serif;
+  --f-body:"Atkinson Hyperlegible",Verdana,Arial,sans-serif;
+  --f-test:"Noto Serif",Georgia,"Times New Roman",serif;
+  --f-hand:"Reenie Beanie","Bradley Hand","Comic Sans MS",cursive;
+  --f-neat:"Patrick Hand","Segoe Print","Comic Sans MS",cursive;
+}
+body[data-zone="read"]{--zone:var(--c-read);--zone-ink:var(--ink);--tint:#FBEDEA}
+body[data-zone="lecture"]{--zone:var(--c-lec);--zone-ink:var(--ink);--tint:#F1EEFA}
+body[data-zone="write"]{--zone:var(--c-write);--zone-ink:var(--ink);--tint:#FAF4DF}
+body[data-zone="math"]{--zone:var(--c-math);--zone-ink:var(--ink);--tint:#EAF4EE}
+body[data-zone="done"]{--zone:#DDA3C4;--zone-ink:var(--ink);--tint:#F8EDF3}
+
+*{box-sizing:border-box}
+body{background:var(--tint);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;transition:background-color .35s}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--ink)}
+.bell{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--ink);color:#FFFFFF}
+.bell-in,.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.bell-in{padding-block:10px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+.bell-period{font-family:var(--f-display);font-weight:800;font-size:1.05rem;flex:1 1 auto;min-width:0}
+.bell-time{font-family:var(--f-display);font-weight:800;font-size:1.3rem;font-variant-numeric:tabular-nums;background:var(--sun);color:var(--ink);padding:1px 14px;border-radius:999px}
+.bell-time.late{background:var(--alert);color:#FFFFFF}
+.bell-feed{flex:1 0 100%;font-style:italic;font-size:.95rem;min-height:1.5em;opacity:.9}
+.bell-nav{flex:1 0 100%;display:flex;flex-wrap:wrap;gap:6px}
+.wrap{padding-block:28px 72px;display:flex;flex-direction:column;gap:22px}
+.screen{display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{font-family:var(--f-display);line-height:1.05;margin:0;text-wrap:balance;letter-spacing:-.015em}
+h1{font-size:clamp(2.3rem,7.5vw,3.7rem);font-weight:800;line-height:1.08}
+h2{font-size:clamp(1.8rem,6vw,2.6rem);font-weight:800}
+h3{font-size:1.2rem;font-weight:800;letter-spacing:0}
+p{margin:0;max-width:65ch}
+.lede{font-size:1.2rem}
+.muted{color:var(--muted)}
+.eyebrow{align-self:flex-start;background:var(--ink);color:#FFFFFF;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:5px 12px;border-radius:999px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.sheet{background:var(--paper);border:var(--edge);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:16px;min-width:0;box-shadow:var(--pop)}
+.sheet .sheet{border-width:1.5px;border-radius:12px;box-shadow:none;padding:16px}
+.hero,.banner{background:var(--zone);color:var(--zone-ink);border:var(--edge);border-radius:24px;padding:28px 26px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--pop);min-width:0}
+.hl{display:inline-block;color:var(--ink);background:var(--c-read);border:var(--edge);border-radius:.22em;padding:0 .16em;transform:rotate(-1.5deg)}
+.hl-b{background:var(--c-write);transform:rotate(1.2deg)}
+.hl-c{background:var(--c-math);transform:rotate(-.8deg)}
+.nb{white-space:nowrap}
+body:not([data-zone]) .bell-feed,body[data-zone="home"] .bell-feed,body[data-zone="done"] .bell-feed{display:none}
+.howto{background:color-mix(in srgb,var(--zone) 42%,var(--paper));border:1.5px dashed var(--ink);border-radius:16px;padding:14px 18px 16px;display:flex;flex-direction:column;gap:8px;font-family:var(--f-body);font-size:.98rem;line-height:1.5;min-width:0}
+.howto .muted{color:var(--ink)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.test{font-family:var(--f-test);font-size:1.12rem;line-height:1.8}
+.key{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--f-test)}
+.key span{border:1.5px solid var(--ink);border-radius:8px;padding:2px 10px;white-space:nowrap}
+.key b{font-size:1.2em;margin-right:6px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;min-width:0}
+legend{padding:0;margin-bottom:6px;font-weight:600}
+.opt{display:flex;gap:10px;align-items:baseline;padding:8px 10px;border-radius:12px;cursor:pointer}
+.opt:hover{background:var(--tint)}
+.opt input{accent-color:var(--ink)}
+.choices .opt{align-items:flex-start}
+.choices small{display:block;color:var(--muted)}
+button{font:inherit;font-family:var(--f-display);font-weight:800;font-size:1.08rem;background:var(--zone);color:var(--zone-ink);border:var(--edge);border-radius:999px;padding:13px 26px;cursor:pointer;align-self:flex-start;box-shadow:3px 3px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+button:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+button.quiet{background:var(--paper);color:var(--ink)}
+button.small{font-size:.95rem;padding:7px 16px;box-shadow:2px 2px 0 var(--ink)}
+button.restart,button.restart:hover,button.restart:active{background:transparent;color:#FFFFFF;border:1.5px solid #FFFFFF;font-size:.85rem;font-weight:600;padding:3px 13px;align-self:center;box-shadow:none;transform:none}
+.bell-nav button::before{content:"";display:inline-block;width:.6em;height:.6em;border-radius:50%;background:var(--dot);margin-right:.45em}
+.bell-nav button[data-jump="1"]{--dot:var(--c-read)}
+.bell-nav button[data-jump="2"]{--dot:var(--c-lec)}
+.bell-nav button[data-jump="3"]{--dot:var(--c-write)}
+.bell-nav button[data-jump="4"]{--dot:var(--c-math)}
+.bell-nav button[aria-current="true"]{background:var(--dot);border-color:var(--dot);color:var(--ink)}
+.bell-nav button[aria-current="true"]::before{background:var(--ink)}
+button.tile{text-align:left;align-self:stretch;background:var(--c);color:var(--ci);border-radius:22px;padding:20px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;box-shadow:var(--pop);font-family:var(--f-body);font-weight:400;font-size:1rem;line-height:1.4}
+button.tile:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
+button.tile:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.tile .k{font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.tile .t{font-family:var(--f-display);font-weight:800;font-size:1.7rem;line-height:1.05;letter-spacing:-.015em}
+.tile .d{margin-bottom:8px}
+.motif{margin-top:auto;display:inline-flex;align-items:center;min-height:46px;background:var(--paper);color:var(--ink);border:1.5px solid var(--ink);border-radius:12px;padding:8px 14px;font-family:var(--f-test);font-size:1.25rem;line-height:1}
+.motif i{font-style:normal;display:inline-block}
+.m-lec{flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;width:120px}
+.m-lec i{display:block;height:6px;border-radius:3px;background:var(--ink);width:100%;transform-origin:left}
+.m-lec i:nth-child(2){width:70%}
+.m-lec i:nth-child(3){width:45%}
+.m-write u{text-decoration:underline wavy var(--alert);text-underline-offset:3px}
+.m-write b{display:inline-block;width:2px;height:1.1em;background:var(--ink);margin-left:3px}
+.m-math{display:inline-grid;font-variant-numeric:tabular-nums}
+.m-math i{grid-area:1/1}
+.m-math i:last-child{opacity:0}
+button:focus-visible,input:focus-visible,textarea:focus-visible,.pad:focus-within{outline:3px solid var(--ink);outline-offset:3px}
+.bell button:focus-visible{outline-color:#FFFFFF}
+.row{display:flex;flex-wrap:wrap;gap:12px}
+.speech{border-left:6px solid var(--sun);padding:10px 16px;font-size:1.25rem;min-height:5.2em;background:var(--paper);border-radius:0 12px 12px 0}
+.dots{display:flex;gap:6px}
+.dots i{width:14px;height:6px;border-radius:3px;background:var(--rule)}
+.dots i.on{background:var(--sun)}
+.pad{position:relative;min-height:230px;border:var(--edge);border-radius:18px;padding:6px 14px;cursor:text;overflow:hidden;box-shadow:var(--pop);
+  background:repeating-linear-gradient(var(--paper),var(--paper) 33px,var(--rule) 33px,var(--rule) 34px)}
+.ink{font-family:var(--f-neat);font-size:23px;line-height:34px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink);min-height:34px}
+.ink span{position:relative}
+.caret{display:inline-block;width:2px;height:24px;background:var(--ink);vertical-align:middle}
+.ghost{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;resize:none;font-size:16px;cursor:text}
+.plain{width:100%;min-height:230px;font:inherit;padding:14px;border:var(--edge);border-radius:18px;background:var(--paper);color:var(--ink);resize:vertical;box-shadow:var(--pop)}
+.padmeter{font-size:.92rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.mark{font-family:var(--f-hand);font-size:2rem;line-height:1.15;color:var(--alert);max-width:28ch}
+.tablewrap{overflow-x:auto;background:var(--paper);border:var(--edge);border-radius:18px;box-shadow:var(--pop)}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:12px 16px;border-bottom:1.5px solid var(--rule);vertical-align:top}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
+thead th{font-family:var(--f-display);font-weight:800;border-bottom:var(--edge)}
+td.ref,th.ref{color:var(--muted)}
+.ink .stuck{text-decoration:underline wavy var(--alert);background:color-mix(in srgb,var(--sun) 60%,transparent);border-radius:3px}
+.ink .struck{text-decoration:line-through;opacity:.55}
+.stall{position:absolute;z-index:20;left:0;top:0;width:min(460px,100%);border:2px solid var(--alert);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;background:var(--paper);box-shadow:var(--pop)}
+.stall::before{content:"";position:absolute;top:-9px;left:var(--ax,28px);width:14px;height:14px;margin-left:-7px;background:var(--paper);border-left:2px solid var(--alert);border-top:2px solid var(--alert);transform:rotate(45deg)}
+.stall .eyebrow{background:var(--alert)}
+.stall .row button{flex:1 1 180px}
+#p3{padding-bottom:170px}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.w{transition:filter .4s,opacity .4s}
+.w.lost{filter:blur(3px);opacity:.4}
+.hard{cursor:help;white-space:nowrap;border-radius:3px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.hard .ch{display:inline-block;transition:transform .4s}
+.hard:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.slide{background:var(--paper);border:var(--edge);border-radius:18px;padding:18px 22px;min-height:15em;display:flex;flex-direction:column;gap:10px;font-size:1rem;min-width:0;box-shadow:var(--pop)}
+.slide h4{margin:0;font-family:var(--f-display);font-weight:800;font-size:1.35rem;line-height:1.2;padding-bottom:8px;border-bottom:4px solid var(--zone)}
+.slide ul{gap:6px}
+.slide .count{margin-top:auto;font-size:.8rem;color:var(--muted)}
+.calc{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-width:320px}
+.calc button{align-self:stretch;padding:10px 0;font-family:var(--f-test);font-size:1.15rem;border-radius:12px;box-shadow:2px 2px 0 var(--ink)}
+.calc output{grid-column:1/-1;font-family:var(--f-test);font-size:1.3rem;text-align:right;padding:8px 12px;min-height:2.4em;border:var(--edge);border-radius:12px;background:var(--paper);overflow-x:auto;white-space:nowrap}
+.num{white-space:nowrap}
+.num .ch{display:inline-block}
+.sp-tight{letter-spacing:-.07em;word-spacing:-.24em}
+.sp-wide{letter-spacing:.32em;word-spacing:-.1em}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px;max-width:65ch}
+#debrief > ul{max-width:none;background:var(--paper);border:var(--edge);border-radius:18px;padding:20px 24px 20px 42px;box-shadow:var(--pop)}
+#debrief > h3{margin-top:10px;font-size:1.45rem}
+@keyframes hop{from{transform:translateY(-5px) rotate(5deg)}to{transform:none}}
+@keyframes blink{50%{opacity:0}}
+@keyframes jig{0%,60%,100%{transform:none}70%{transform:translate(2px,-7px) rotate(9deg)}85%{transform:translate(-2px,-3px) rotate(-7deg)}}
+@keyframes bar{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.35)}}
+@keyframes swapA{0%{opacity:1}50%{opacity:0}}
+@keyframes swapB{0%{opacity:0}50%{opacity:1}}
+@media (prefers-reduced-motion:no-preference){
+  .caret,.m-write b{animation:blink 1s steps(2) infinite}
+  .num .ch.hop{animation:hop .45s ease-out}
+  .m-read i:nth-child(3){animation:jig 2.4s ease-in-out infinite}
+  .m-read i:nth-child(6){animation:jig 2.4s ease-in-out .8s infinite}
+  .m-read i:nth-child(9){animation:jig 2.4s ease-in-out 1.5s infinite}
+  .m-lec i{animation:bar 3s ease-in-out infinite}
+  .m-lec i:nth-child(2){animation-delay:.4s}
+  .m-lec i:nth-child(3){animation-delay:.8s}
+  .m-math i:first-child{animation:swapA 2.6s steps(1) infinite}
+  .m-math i:last-child{animation:swapB 2.6s steps(1) infinite}
+}
+</style>
+</head>
+<body>
+<header class="bell">
+  <div class="bell-in">
+    <span class="bell-period" id="bellPeriod">Before first bell</span>
+    <span class="bell-time" id="bellTime" hidden>0:00</span>
+    <button class="restart" id="skipBtn" type="button" hidden>Skip ahead</button>
+    <button class="restart" id="restartBtn" type="button" hidden>Home</button>
+    <span class="bell-feed" id="bellFeed" aria-live="polite"></span>
+    <nav class="bell-nav" id="bellNav" aria-label="Jump to a part of the day" hidden>
+      <button class="restart" type="button" data-jump="1">Reading</button>
+      <button class="restart" type="button" data-jump="2">Lecture</button>
+      <button class="restart" type="button" data-jump="3">Writing</button>
+      <button class="restart" type="button" data-jump="4">Math</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section class="screen" id="intro">
+  <div class="hero">
+    <p class="eyebrow">A simulation · 10 to 15 minutes</p>
+    <h1>A school day as a junior with <span class="nb"><span class="hl">dyslexia</span>,</span> <span class="hl hl-b">dysgraphia</span> and <span class="hl hl-c">dyscalculia</span></h1>
+    <p class="lede">You are 17. You take AP Literature, Honors US History and Honors Algebra 2. You understand the material as well as anyone in the room.</p>
+  </div>
+  <div class="sheet" id="about">
+    <h3>What this is</h3>
+    <p>This is not a test, and your score does not matter. It is a way to feel, for a few minutes, what ordinary school tasks are like for a student with dyslexia, dysgraphia and dyscalculia.</p>
+    <p>You will take a reading quiz, follow a lecture, write a timed response, and take a math quiz. The page shows how reading, writing and numbers work for you.</p>
+    <p>There is a clock running, but getting the answers right is not the point. Notice what it takes to try: how long things take, what slips away while you work, and what you start doing to cope.</p>
+    <p>Each part follows one student's own account of what happens for her. Other people's experiences differ.</p>
+  </div>
+  <div class="sheet choices" hidden>
+    <fieldset>
+      <legend>What the day includes</legend>
+      <label class="opt"><input type="checkbox" id="incLit" checked><span>Reading and writing <small>Dyslexia and dysgraphia. Three periods: a reading quiz, a lecture and a timed response.</small></span></label>
+      <label class="opt"><input type="checkbox" id="incMath" checked><span>Numbers <small>Dyscalculia. One period: a math quiz.</small></span></label>
+    </fieldset>
+    <fieldset>
+      <legend>Supports on your plan today</legend>
+      <label class="opt"><input type="checkbox" id="supTime"><span>Extended time <small>Time and a half on timed work.</small></span></label>
+      <label class="opt"><input type="checkbox" id="supAudio"><span>Audio for printed text <small>Passages and prompts are read aloud to you.</small></span></label>
+      <label class="opt"><input type="checkbox" id="supNotes"><span>Teacher's notes <small>You get the lecture outline to use during the quiz.</small></span></label>
+      <label class="opt"><input type="checkbox" id="supTyping"><span>Keyboard for written work <small>You type the written response instead of writing by hand.</small></span></label>
+      <label class="opt"><input type="checkbox" id="supCalc"><span>Calculator <small>Allowed on the math quiz.</small></span></label>
+    </fieldset>
+  </div>
+  <button id="startBtn">Start the whole day</button>
+  <h3>Or jump into one class</h3>
+  <div class="tiles">
+    <button class="tile" type="button" data-jump="1" style="--c:var(--c-read);--ci:var(--ink)"><span class="k">Period 1 · Dyslexia</span><span class="t">Reading quiz</span><span class="d">A paragraph where some words will not hold still.</span><span class="motif m-read" aria-hidden="true"><i>p</i><i>a</i><i>r</i><i>a</i><i>d</i><i>o</i><i>x</i><i>i</i><i>c</i><i>a</i><i>l</i></span></button>
+    <button class="tile" type="button" data-jump="2" style="--c:var(--c-lec);--ci:var(--ink)"><span class="k">Period 3 · Dyslexia</span><span class="t">Lecture</span><span class="d">Slides that change before you finish reading them.</span><span class="motif m-lec" aria-hidden="true"><i></i><i></i><i></i></span></button>
+    <button class="tile" type="button" data-jump="3" style="--c:var(--c-write);--ci:var(--ink)"><span class="k">Period 5 · Dysgraphia</span><span class="t">Written response</span><span class="d">A full idea in your head, and a hand that cannot keep up.</span><span class="motif m-write" aria-hidden="true"><u>because</u><b></b></span></button>
+    <button class="tile" type="button" data-jump="4" style="--c:var(--c-math);--ci:var(--ink)"><span class="k">Period 6 · Dyscalculia</span><span class="t">Math quiz</span><span class="d">Numbers whose digits trade places while you look.</span><span class="motif m-math" aria-hidden="true"><i>75</i><i>57</i></span></button>
+  </div>
+  <p class="muted" id="backLink"><a href="../index.html" target="_top">Back to Understanding Dyslexia</a></p>
+</section>
+
+<section class="screen" id="between" hidden>
+  <div class="banner"><p class="eyebrow" id="bwEyebrow"></p><h2 id="bwTitle"></h2></div>
+  <div class="sheet" id="bwBody"></div>
+  <button id="bwBtn"></button>
+</section>
+
+<section class="screen" id="p1" hidden>
+  <div id="keyBox"></div>
+  <div class="sheet">
+    <div class="test" id="passage"></div>
+  </div>
+  <div class="sheet test" id="q1"></div>
+  <button id="turnIn1">Turn in quiz</button>
+</section>
+
+<section class="screen" id="p2" hidden>
+  <div id="how2"></div>
+  <div class="stack">
+    <h3>On the projector</h3>
+    <div class="slide" id="slide"></div>
+  </div>
+  <div class="stack" id="lecCap" hidden>
+    <p class="muted">Sound is not available in this viewer, so what he says is shown here.</p>
+    <div class="speech" id="speech"></div>
+  </div>
+</section>
+
+<section class="screen" id="p2q" hidden>
+  <div class="sheet" id="notesBack"></div>
+  <div class="sheet test" id="q2"></div>
+  <button id="turnIn2">Turn in quiz</button>
+</section>
+
+<section class="screen" id="p3" hidden>
+  <div id="how3"></div>
+  <div class="sheet test" id="prompt3"></div>
+  <div class="sheet" id="idea3"></div>
+  <div id="padHost3"></div>
+  <button id="turnIn3">Turn in response</button>
+</section>
+
+<section class="screen" id="p4" hidden>
+  <div id="keyBox4"></div>
+  <div class="sheet test" id="q4"></div>
+  <div class="stack" id="calcHost"></div>
+  <button id="turnIn4">Turn in quiz</button>
+</section>
+
+<section class="screen" id="debrief" hidden>
+  <p class="eyebrow">Final bell</p>
+  <h2>What your day looked like on paper</h2>
+  <div class="tablewrap"><table id="results"></table></div>
+  <div class="stack">
+    <p class="muted">Run it again to compare. Each run adds a column.</p>
+    <div class="row"><button id="rerunSup" hidden>Run it again with supports</button><button id="rerunOther">Run it again</button></div>
+  </div>
+  <h3>What the simulation is modeling</h3>
+  <ul>
+    <li><b>Knowing a word and reading it are separate.</b> This student can use every hard word here in conversation. A word she has never seen written will not hold still and cannot be sounded out, however familiar it is by ear.</li>
+    <li><b>Working out one word costs the sentence.</b> Decoding takes so much attention that what came before is lost, so the passage gets read again, sometimes five times. Under a clock, the usual move is to skip the word and come back for it. The blur on screen stands for that lost understanding. The words do not actually look blurry.</li>
+    <li><b>Ordinary words misread.</b> A familiar word can read as another word made of the same letters, such as was and saw, and the mistake only shows when the sentence stops making sense. Uneven spacing runs words together or splits them into words that are not there.</li>
+    <li><b>What the research says.</b> Dyslexia is usually described as a difference in how the brain links letters to sounds. Many people with dyslexia also describe letters that seem to swap or move, and this period follows one student's account of that. It has nothing to do with intelligence.</li>
+    <li><b>Slides move on.</b> The slide carries more than the teacher says and changes before the reading is done. Listening and reading compete for the same attention, and whatever was on the last slide is gone.</li>
+    <li><b>The page gets a fraction of the idea.</b> This student has plenty to say. Her handwriting looks fine because she makes it fine, one careful letter at a time, so her hand runs far behind her thoughts. Any word can refuse to spell, including ones she says every day, and each stop costs time, a guess, or a trade for an easier word.</li>
+    <li><b>Answers get simpler.</b> When a question or a passage will not resolve, the student often gives a shorter, plainer answer in words she is sure of. The grade reflects that answer.</li>
+    <li><b>Every wrong reading of a number is still a number.</b> Digits trade places, decimal points drift, and numbers that sit close together run into each other. A misread word usually looks wrong and gets caught. A misread number looks fine. This student understands the math and can read each digit. What she cannot trust is their order.</li>
+    <li><b>The grade measures the output.</b> Each teacher comment was a reading of the page in front of them. None of them could see what you understood.</li>
+  </ul>
+  <h3>Who this student is</h3>
+  <ul>
+    <li>A junior who has lived with this since early childhood and has built years of workarounds. Words she has seen before read fine and words she has only heard stall her, writing is neat but slow and any word can stall on its spelling, and numbers have to be read more than once. The work usually gets finished, at a cost in time and energy.</li>
+  </ul>
+  <h3>What it leaves out</h3>
+  <ul>
+    <li>You did this for ten minutes and knew it would end. A student does it every period, then goes home to homework that takes far longer than it takes classmates.</li>
+    <li>Students at this level have spent years building workarounds. The workarounds are effective and tiring, and they can hide how much effort is being spent.</li>
+    <li>Asking for help means doing it in front of the room, at 17. Many students decide not to.</li>
+    <li>Dyslexia, dysgraphia and dyscalculia often occur together, but they are separate. A student may have one, two or all three, and each varies widely from person to person. This is one plausible day, built to convey effort. It is not a clinical picture.</li>
+    <li>Numbers are everywhere outside math class: the clock, a locker combination, a tip, a bus schedule. The quiz is one small slice.</li>
+  </ul>
+  <h3>What supports change, and what they leave</h3>
+  <ul>
+    <li><b>Extended time</b> gives room for slower decoding. The decoding is still there.</li>
+    <li><b>Audio</b> moves the task from decoding to comprehension. Listening runs at speaking pace, which is slower than a fluent reader skimming, and you cannot glance back as easily.</li>
+    <li><b>Teacher's notes</b> let a student listen during a lecture instead of racing to read every slide. The outline is still printed text to read.</li>
+    <li><b>A keyboard</b> takes letter formation out of the way. Spelling still takes thought, so a few errors come through.</li>
+    <li><b>A calculator</b> does the arithmetic. The arithmetic is reliable. The numbers still have to be read off the page and keyed in, and the answer read back, and that is where the slips happen.</li>
+  </ul>
+  <p class="muted">The questions, the prompt and the standard for a right answer are identical in every run.</p>
+</section>
+
+</main>
+
+<script>
+(function(){
+const $ = s => document.querySelector(s);
+const el = (tag, cls, txt) => { const n = document.createElement(tag); if (cls) n.className = cls; if (txt != null) n.textContent = txt; return n; };
+
+const PROFILES = {
+  moderate: {name:'Moderate', map:{a:'δ', o:'ξ', n:'λ'}, lock:170, err:0.02, typeErr:0.01, jit:0.4, phonetic:true, nmap:{6:'†',7:'¶',8:'§',9:'Ω'}, swap:0.12},
+};
+const state = { profile:'moderate', inc:{lit:true,math:true}, sup:{time:false,audio:false,notes:false,typing:false,calc:false}, lecMode:'audio', runs:[], run:null };
+const P = () => PROFILES[state.profile];
+/* Hard = a word this student knows by ear but is meeting in print for the first time. Length does not matter. */
+const HARD = new Set('incumbent mandamus writ jurisdiction repugnant petitions statutes invalidate unanimous precipitates meager impassable enumerate relinquish negligible adjudicate statute invalidated entrench provision precedent coerced benevolence prerequisite substantiating intransigent patrimony obstinate paradoxically inundated acquiesced nuanced tangible culminating paltry consequently marisol compulsory antithetical altruism marbury judiciary judicial sedition'.split(' '));
+/* Familiar words that can read as another word made of the same letters in a different order. Sound-alikes (rows/rose) are deliberately excluded. */
+const LOOK = {was:'saw', saw:'was', no:'on', on:'no', now:'won', who:'how', how:'who', from:'form', form:'from', there:'three', three:'there', could:'cloud', does:'dose', never:'nerve', sues:'uses', mean:'name', part:'trap'};
+const calm = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const cap = (src, t) => /^[A-Z]/.test(src) ? t[0].toUpperCase() + t.slice(1) : t;
+function paint(w, k){
+  const a = Array.from(w.dataset.word), n = a.length;
+  for (let j = 0; j < k; j++) { const i = 1 + Math.floor(Math.random() * (n - 2)), i2 = Math.min(n - 1, i + (Math.random() < 0.6 ? 1 : 2)); const t = a[i]; a[i] = a[i2]; a[i2] = t; }
+  Array.from(w.children).forEach((c, i) => {
+    const moved = c.textContent !== a[i]; c.textContent = a[i];
+    c.style.transform = (moved && k) ? 'translate(' + (Math.random() * 3 - 1.5).toFixed(1) + 'px,' + (-2 - Math.random() * 4).toFixed(1) + 'px) rotate(' + (Math.random() * 10 - 5).toFixed(0) + 'deg)' : 'none';
+  });
+}
+const swapsFor = w => Math.max(2, Math.round(w.dataset.word.length / 3));
+function hold(w){
+  const root = w.closest('.rich'); clearTimeout(root._lt);
+  w.dataset.hold = '1';
+  const ws = Array.from(root.querySelectorAll('.w')), idx = ws.indexOf(w);
+  ws.forEach((x, i) => x.classList.toggle('lost', i < idx));
+  if (calm) w._ct = setTimeout(() => { if (w.dataset.hold) paint(w, 0); }, 1500);
+}
+function release(w){
+  const root = w.closest('.rich');
+  delete w.dataset.hold; clearTimeout(w._ct);
+  if (calm) paint(w, swapsFor(w));
+  root._lt = setTimeout(() => root.querySelectorAll('.lost').forEach(x => x.classList.remove('lost')), 3500);
+}
+function rich(text, nums){
+  const root = el('span', 'rich'), src = text;
+  let gap = 99;
+  const addText = (bx, t) => {
+    if (!nums) { bx.append(el('span', 'w', t)); return; }
+    t.split(/(\d*\.?\d+)/).forEach((x, k) => {
+      if (!x) return;
+      if (k % 2 === 0) { bx.append(document.createTextNode(x)); gap += x.length; return; }
+      const n = el('span', 'num'); n.dataset.n = x; if (gap <= 2) n.dataset.near = '1'; gap = 0; setNum(n, x); bx.append(n);
+    });
+  };
+  if (nums) root.classList.add('nums');
+  if (state.sup.audio || !state.inc.lit) { addText(root, src); return root; }
+  let box = root, left = 0;
+  src.split(/([A-Za-z]+(?:'[a-z]+)?)/).forEach((t, i) => {
+    if (i % 2 === 0) { if (t) addText(box, t); return; }
+    if (left <= 0) {
+      const r = Math.random();
+      if (r < 0.5) { box = root; left = 4 + Math.floor(Math.random() * 6); }
+      else { box = el('span', r < 0.75 ? 'sp-tight' : 'sp-wide'); root.append(box); left = 2 + Math.floor(Math.random() * 3); }
+    }
+    left--; gap += t.length;
+    const w = el('span', 'w'), base = t.toLowerCase();
+    if (HARD.has(base)) {
+      w.classList.add('hard'); w.tabIndex = 0; w.dataset.word = t;
+      Array.from(t).forEach(ch => w.append(el('span', 'ch', ch)));
+      paint(w, swapsFor(w));
+      w.addEventListener('pointerenter', () => hold(w)); w.addEventListener('pointerleave', () => release(w));
+      w.addEventListener('focus', () => hold(w)); w.addEventListener('blur', () => release(w));
+    } else if (LOOK[base] && LOOK[base] !== base) {
+      w.classList.add('look'); w.dataset.a = t; w.dataset.b = cap(t, LOOK[base]);
+      w.textContent = Math.random() < 0.3 ? w.dataset.b : t;
+    } else w.textContent = t;
+    box.append(w);
+  });
+  return root;
+}
+if (!calm) setInterval(() => {
+  document.querySelectorAll('.screen:not([hidden]) .hard').forEach(w => {
+    if (w.dataset.hold) { const h = +w.dataset.hold + 1; w.dataset.hold = h; paint(w, Math.max(0, swapsFor(w) - (h - 1))); }
+    else if (Math.random() < 0.5) paint(w, swapsFor(w));
+  });
+  const looks = document.querySelectorAll('.screen:not([hidden]) .look');
+  if (looks.length) { const it = looks[Math.floor(Math.random() * looks.length)]; it.textContent = Math.random() < 0.3 ? it.dataset.b : it.dataset.a; }
+}, 500);
+const encN = s => s;
+/* Numbers: every reordering of digits is another valid number, so a misread looks fine. */
+function setNum(span, v){
+  const old = span.textContent; span.textContent = '';
+  Array.from(v).forEach((ch, i) => span.append(el('span', 'ch' + (old && old[i] !== ch ? ' hop' : ''), ch)));
+}
+function fmtNum(d, dot){
+  if (dot < 0 || dot >= d.length) return d.replace(/^0+(?=\d)/, '');
+  return d.slice(0, dot).replace(/^0+(?=\d)/, '') + '.' + d.slice(dot);
+}
+function numVariant(n){
+  const hasDot = n.indexOf('.') >= 0; let d = n.replace('.', ''), dot = hasDot ? n.indexOf('.') : -1;
+  if (hasDot && Math.random() < 0.4) { const nd = dot + (Math.random() < 0.5 ? -1 : 1); if (nd >= 1 && nd <= d.length) dot = nd; }
+  else {
+    const c = []; for (let i = 0; i < d.length - 1; i++) if (d[i] !== d[i + 1] && (hasDot || i > 0 || d[i + 1] !== '0')) c.push(i);
+    if (c.length) { const i = c[Math.floor(Math.random() * c.length)]; d = d.slice(0, i) + d[i + 1] + d[i] + d.slice(i + 2); }
+  }
+  return fmtNum(d, dot);
+}
+function paintNums(root){
+  const nums = Array.from(root.querySelectorAll('.num')), vals = nums.map(n => n.dataset.n);
+  const near = []; nums.forEach((n, i) => { if (i && n.dataset.near && !/\./.test(vals[i] + vals[i - 1]) && vals[i].length > 1 && vals[i - 1].length > 1 && vals[i - 1].slice(-1) !== '0') near.push(i); });
+  if (near.length && Math.random() < 0.4) { const i = near[Math.floor(Math.random() * near.length)], a = vals[i - 1], b = vals[i]; vals[i - 1] = a.slice(0, -1) + b[0]; vals[i] = a.slice(-1) + b.slice(1); }
+  nums.forEach((n, i) => { const v = Math.random() < 0.3 ? numVariant(vals[i]) : vals[i]; if (n.textContent !== v) setNum(n, v); });
+}
+setInterval(() => document.querySelectorAll('.screen:not([hidden]) .nums').forEach(r => { if (Math.random() < 0.45) paintNums(r); }), 500);
+const mult = () => state.sup.time ? 1.5 : 1;
+const words = t => t.trim().split(/\s+/).filter(Boolean).length;
+const mod = () => state.profile === 'moderate';
+
+const PASSAGE = "The orchard had been her grandfather's obstinate argument with the desert, a decades-long, intransigent refusal to concede what the land had always made plain. For forty years he had carried water to trees that had no business living there, and the trees, paradoxically, had flourished. Now the well was failing, and the family, inundated with bills and weary of a patrimony that yielded so little, had acquiesced to the loss. Marisol had not. Her reasons were nuanced, and none of them was tangible enough to defend aloud. She walked the rows at dusk and counted, not the trees, but the summers she was willing to surrender to them, one after another, culminating in a number that frightened her precisely because it was not paltry. Consequently, she told no one.";
+const Q1 = [
+  {q:"What circumstance precipitates the family's decision?", o:["A meager harvest","The failing well","A neglected fence","An impassable road"], a:1},
+  {q:"What does Marisol enumerate as she walks the rows?", o:["The surviving trees","The rows themselves","The summers she would relinquish","The buckets of water"], a:2},
+  {q:"Why does the resulting number unsettle her?", o:["It is substantial","It is negligible","She cannot recollect it","Her grandfather determined it"], a:0}
+];
+const LECTURE = [
+  "Okay. 1800. Jefferson beats Adams. First real transfer of power between parties.",
+  "Before he leaves, Adams fills the courts with Federalist judges. The midnight appointments.",
+  "William Marbury is one of them. But his commission never gets delivered.",
+  "Jefferson's Secretary of State, James Madison, refuses to hand it over.",
+  "Marbury sues, straight to the Supreme Court. The Chief Justice is John Marshall.",
+  "1803. Marshall says Marbury deserves the commission, but the Court can't order it.",
+  "Why? The law that gave the Court that power, part of the Judiciary Act of 1789, conflicts with the Constitution.",
+  "So the Court strikes that part down. That is judicial review. It will be on Friday's test.",
+  "Marshall loses the small fight and wins the big one. Write that down."
+];
+const SLIDES = [
+  {t:"The Election of 1800", b:["Jefferson (Democratic-Republican) defeats the incumbent, Adams (Federalist)","First peaceful transfer of power between rival parties","Outgoing Federalists pass the Judiciary Act of 1801","Adams's \"midnight appointments\" entrench Federalist judges"]},
+  {t:"The Undelivered Commission", b:["William Marbury: named justice of the peace, District of Columbia","Commission signed and sealed, never delivered","Secretary of State James Madison withholds it on Jefferson's orders","Marbury petitions the Supreme Court for a writ of mandamus"]},
+  {t:"Marbury v. Madison (1803)", b:["Chief Justice John Marshall writes for a unanimous Court","Marbury is entitled to his commission","But the Court lacks jurisdiction to compel delivery","Section 13, Judiciary Act of 1789, exceeds Article III"]},
+  {t:"Judicial Review", b:["An act repugnant to the Constitution is void","The Court asserts the power to invalidate federal statutes","Precedent for every later constitutional challenge","This will be on Friday's test"]},
+  {t:"Marshall's Strategy", b:["Concedes the immediate dispute to Jefferson","Secures the lasting authority of the judiciary","Avoids an order the President could simply ignore"]}
+];
+const SLIDE_AT = [0, 0, 1, 1, 2, 2, 2, 3, 4];
+const OUTLINE = ["Marbury v. Madison (1803)","Adams's eleventh-hour appointments entrench Federalist judges","Madison withholds Marbury's commission","Chief Justice John Marshall presides","A provision of the Judiciary Act of 1789 is ruled unconstitutional","Precedent established: judicial review"];
+const Q2 = [
+  {q:"Which official withheld Marbury's commission?", o:["John Adams","John Marshall","James Madison","William Marbury"], a:2},
+  {q:"In what year did the Court adjudicate the case?", o:["1789","1800","1803","1812"], a:2},
+  {q:"Which statute was partially invalidated?", o:["The Alien and Sedition Acts","The Judiciary Act of 1789","The Bill of Rights","The Missouri Compromise"], a:1}
+];
+const Q4 = [
+  {q:"Five test scores: 68, 74, 86, 77, 70. What is the mean?", o:["75","57","73","77"], a:0},
+  {q:"The class mean is 75 with a standard deviation of 6. Your score is 87. What is your z-score?", o:["12","2","0.5","1.2"], a:1},
+  {q:"Which probability is the largest?", o:["0.09","0.38","0.125","0.4"], a:3},
+  {q:"17% of 200 seniors take the bus. How many seniors is that?", o:["43","3.4","34","340"], a:2}
+];
+const IDEA = "Requiring service does not ruin it. Most students who are made to volunteer would never have walked into a food bank on their own, and many of them keep going after the hours are signed off. At our school, the seniors who complained loudest in September ended up organizing the spring food drive. The requirement only opens the door. What a student does after that is still a choice.";
+const PROMPT = "Critics contend that compulsory service is antithetical to altruism, since coerced benevolence is not benevolence at all. Should high schools mandate community service as a prerequisite for graduation? Defend a position, substantiating it with one reason and one concrete example.";
+
+/* ---------- speech ---------- */
+const synth = ('speechSynthesis' in window && 'SpeechSynthesisUtterance' in window) ? window.speechSynthesis : null;
+let stopSay = null, keepUtter = null;
+function hush(){ if (stopSay) stopSay(); stopSay = null; }
+function say(text, onEnd, onFail){
+  hush();
+  if (!synth) { if (onFail) onFail(); return; }
+  let done = false, started = false, t1, t2;
+  const fin = ok => { if (done) return; done = true; clearTimeout(t1); clearTimeout(t2); if (ok) { if (onEnd) onEnd(); } else if (onFail) onFail(); };
+  const u = new SpeechSynthesisUtterance(text); u.rate = 1; u.lang = 'en-US';
+  u.onstart = () => { started = true; };
+  u.onend = () => fin(true);
+  u.onerror = () => fin(started);
+  keepUtter = u;
+  t1 = setTimeout(() => { if (!started) { try { synth.cancel(); } catch (e) {} fin(false); } }, 4000);
+  t2 = setTimeout(() => fin(true), 40000);
+  stopSay = () => { done = true; clearTimeout(t1); clearTimeout(t2); try { synth.cancel(); } catch (e) {} };
+  try { synth.cancel(); synth.speak(u); } catch (e) { fin(false); }
+}
+
+/* ---------- bell bar and timer ---------- */
+let tick = null, elapsed = () => 0;
+function setBell(period, feed){
+  $('#bellPeriod').textContent = period; $('#bellFeed').textContent = feed || '';
+  const z = /Period 1/.test(period) ? 'read' : /Period 3/.test(period) ? 'lecture' : /Period 5/.test(period) ? 'write' : /Period 6/.test(period) ? 'math' : /After school/.test(period) ? 'done' : 'home';
+  document.body.dataset.zone = z;
+  const j = {read: '1', lecture: '2', write: '3', math: '4'}[z];
+  document.querySelectorAll('#bellNav [data-jump]').forEach(b => { if (b.dataset.jump === j) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+}
+function stopTimer(){ if (tick) clearInterval(tick); tick = null; $('#bellTime').hidden = true; }
+function startTimer(sec, onEnd, feed){
+  stopTimer();
+  const start = Date.now(), total = sec * 1000, bt = $('#bellTime'); let fi = 0;
+  elapsed = () => Math.min(sec, (Date.now() - start) / 1000);
+  bt.hidden = false;
+  const draw = () => {
+    const gone = Date.now() - start, left = Math.max(0, total - gone), s = Math.ceil(left / 1000);
+    bt.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    bt.classList.toggle('late', left / total < 0.2);
+    while (feed && fi < feed.length && gone / total >= feed[fi][0]) $('#bellFeed').textContent = feed[fi++][1];
+    if (left <= 0) { stopTimer(); onEnd(); }
+  };
+  draw(); tick = setInterval(draw, 200);
+}
+let armT = null;
+function disarm(){ const b = $('#restartBtn'); clearTimeout(armT); delete b.dataset.armed; b.textContent = 'Home'; }
+function show(id){ document.querySelectorAll('.screen').forEach(s => s.hidden = s.id !== id); $('#restartBtn').hidden = id === 'intro'; $('#bellNav').hidden = id === 'intro'; $('#skipBtn').hidden = id === 'intro' || id === 'debrief'; disarm(); window.scrollTo(0, 0); }
+function between(eyebrow, title, parts, btn, cb){
+  stopTimer(); hush();
+  $('#bwEyebrow').textContent = eyebrow; $('#bwTitle').textContent = title;
+  const body = $('#bwBody'); body.textContent = '';
+  parts.forEach(p => body.append(typeof p === 'string' ? el('p', null, p) : p));
+  const b = $('#bwBtn'); b.textContent = btn; b.onclick = cb;
+  show('between'); b.focus();
+}
+
+/* ---------- questions ---------- */
+function renderQs(host, qs, name, nums){
+  host.textContent = '';
+  qs.forEach((q, i) => {
+    const fs = el('fieldset'); const lg = el('legend', null, (i + 1) + '. '); lg.append(rich(q.q, nums)); fs.append(lg);
+    q.o.forEach((o, j) => {
+      const lab = el('label', 'opt'), inp = el('input');
+      inp.type = 'radio'; inp.name = name + i; inp.value = j; inp.id = name + i + '_' + j;
+      lab.append(inp, rich(o, nums)); fs.append(lab);
+    });
+    host.append(fs);
+  });
+}
+function score(qs, name){
+  let correct = 0, answered = 0;
+  qs.forEach((q, i) => { const c = document.querySelector('input[name="' + name + i + '"]:checked'); if (c) { answered++; if (+c.value === q.a) correct++; } });
+  return {correct, answered};
+}
+function howBox(lines){
+  const b = el('div', 'howto'); b.append(el('p', 'eyebrow', 'How this works'));
+  (lines || []).forEach(t => b.append(el('p', null, t)));
+  return b;
+}
+function keyLegend(readText){
+  const box = howBox();
+  if (state.sup.audio) {
+    box.append(el('p', 'muted', synth ? 'Audio is on. The text is read aloud while you follow along.' : 'Audio is on. Sound is not available in this viewer, so the plain text stands in for hearing it.'));
+    if (synth && readText) { const b = el('button', 'quiet small', 'Play it again'); b.type = 'button'; b.onclick = () => say(readText); box.append(b); }
+    return box;
+  }
+  box.append(el('p', 'muted', 'You know every word on this page. You use them when you talk. A few of them you have never seen written down, and those will not hold still.'));
+  box.append(el('p', 'muted', 'Hold your pointer on a moving word to work it out. On a touch screen, press and hold. While you do, what you just read slips away.'));
+  box.append(el('p', 'muted', 'The blur stands for losing the meaning of what you just read. The words themselves do not look blurry to her.'));
+  box.append(el('p', 'muted', 'Some ordinary words will read as a different word until you look again. The uneven spacing is part of it.'));
+  return box;
+}
+
+/* ---------- writing pad ---------- */
+const VOWEL = {a:'e', e:'a', i:'e', o:'u', u:'o'};
+function syllables(w){
+  w = w.toLowerCase().replace(/[^a-z]/g, '');
+  const m = w.match(/[aeiouy]+/g); let n = m ? m.length : 1;
+  if (n > 1 && /e$/.test(w) && !/le$/.test(w)) n--;
+  else if (n > 1 && /[^aeiou]es$/.test(w)) n--;
+  else if (n > 1 && /[^aeioutd]ed$/.test(w)) n--;
+  return n;
+}
+function misspell(w){
+  const c = [w.replace(/(.)\1/, '$1'), w.replace('ie', 'ei'), w.replace('ei', 'ie'), w.replace('tion', 'shun'), w.replace('ea', 'ee'), w.replace('ou', 'ow'), w.replace('ph', 'f'), w.replace(/([^aeiou])e$/, '$1'), w.replace(/c([eiy])/, 's$1')].filter(x => x !== w);
+  if (c.length) return c[Math.floor(Math.random() * c.length)];
+  if (w.length > 3) { const i = 1 + Math.floor(Math.random() * (w.length - 2)); return w.slice(0, i) + w[i + 1] + w[i] + w.slice(i + 2); }
+  return w + w.slice(-1);
+}
+function makePad(host, id, label){
+  host.textContent = '';
+  const prof = P();
+  if (state.sup.typing) {
+    const ta = el('textarea', 'plain'), meter = el('p', 'padmeter'); ta.id = id; ta.setAttribute('aria-label', label);
+    let mis = 0;
+    const upd = () => { meter.textContent = 'Keyboard support is on. Your hands keep up. Spelling still takes thought. Slips so far: ' + mis; };
+    upd();
+    ta.addEventListener('input', e => {
+      const d = e.data;
+      if (e.inputType !== 'insertText' || !d || d.length !== 1 || !/[a-z]/i.test(d)) return;
+      if (ta.selectionStart !== ta.value.length || Math.random() >= prof.typeErr) return;
+      const low = d.toLowerCase();
+      ta.value = ta.value.slice(0, -1) + (VOWEL[low] || '');
+      mis++; upd();
+    });
+    host.append(ta, meter);
+    return { text: () => ta.value, stats: () => ({stalls: 0, guessed: mis, swapped: 0, behind: 0}), focus: () => ta.focus(), stop: () => {}, view: () => { const d = el('div'); d.style.whiteSpace = 'pre-wrap'; d.textContent = ta.value || '(nothing written)'; return d; } };
+  }
+  /* By hand: neat, because every letter is made carefully, and slow for the same reason. Any word can refuse to spell. */
+  const pad = el('div', 'pad'), ink = el('div', 'ink'), caret = el('span', 'caret'), ta = el('textarea', 'ghost'), meter = el('p', 'padmeter'), box = el('div', 'stall');
+  ta.id = id; ta.setAttribute('aria-label', label);
+  ['autocomplete','autocorrect','autocapitalize'].forEach(a => ta.setAttribute(a, 'off')); ta.spellcheck = false; ta.value = ' ';
+  ink.append(caret); pad.append(ink, ta); box.hidden = true; host.style.position = 'relative'; host.append(pad, meter, box);
+  const buf = [], queue = []; let stalls = 0, guessed = 0, swapped = 0, stalled = false, skipNext = false, t = null, dead = false;
+  const PER = 420, isL = c => /[a-z']/i.test(c);
+  const node = c => c === '\n' ? el('br') : el('span', null, c);
+  const upd = () => { meter.textContent = 'Your hand is ' + queue.length + (queue.length === 1 ? ' letter' : ' letters') + ' behind your thoughts. Spelling has stopped it ' + stalls + (stalls === 1 ? ' time.' : ' times.'); };
+  const pump = () => {
+    t = null;
+    if (dead || stalled || !queue.length) { upd(); return; }
+    const c = queue.shift(); write(c); upd();
+    t = setTimeout(pump, isL(c) ? PER : PER / 2);
+  };
+  const resume = () => { stalled = false; box.hidden = true; box.textContent = ''; ink.querySelectorAll('.stuck').forEach(n => n.classList.remove('stuck')); ta.focus(); pump(); };
+  const stall = (start, len) => {
+    stalled = true; stalls++;
+    const items = buf.slice(start, start + len), word = items.map(o => o.c).join('');
+    items.forEach(o => o.n.classList.add('stuck'));
+    const msg = el('p', null, 'Your hand stops on “' + word + '”. You know the word. You cannot see how it is spelled.');
+    const long = syllables(word) > 2;
+    const tag = el('p', 'eyebrow', 'Stuck on a word');
+    const row = el('div', 'row'), b1 = el('button', 'quiet small', 'Work it out (5 seconds)'), b2 = el('button', 'quiet small', 'Guess and keep going'), b3 = el('button', 'quiet small', 'Cross it out, use an easier word');
+    (long ? [b1, b2, b3] : [b1, b2]).forEach(b => { b.type = 'button'; row.append(b); });
+    b1.onclick = () => { row.remove(); tag.textContent = 'Working it out'; msg.textContent = 'Working out “' + word + '”. The clock keeps running.'; setTimeout(() => { if (!dead) resume(); }, 5000); };
+    b2.onclick = () => {
+      guessed++;
+      const after = buf[start + len] ? buf[start + len].n : caret, fresh = Array.from(misspell(word)).map(c => ({c, n: node(c)}));
+      items.forEach(o => o.n.remove()); fresh.forEach(o => ink.insertBefore(o.n, after));
+      buf.splice(start, len, ...fresh); resume();
+    };
+    b3.onclick = () => { swapped++; items.forEach(o => { o.n.classList.add('struck'); o.x = true; }); skipNext = true; resume(); };
+    box.replaceChildren(tag, msg, row); box.hidden = false;
+    requestAnimationFrame(() => {
+      /* open right under the stuck word and stay there until a choice is made */
+      const hr = host.getBoundingClientRect(), a = items[0].n.getBoundingClientRect(), z = items[items.length - 1].n.getBoundingClientRect();
+      const left = Math.max(0, Math.min(a.left - hr.left - 18, hr.width - box.offsetWidth));
+      box.style.top = (z.bottom - hr.top + 12) + 'px'; box.style.left = left + 'px';
+      box.style.setProperty('--ax', Math.max(18, Math.min((a.left + z.right) / 2 - hr.left - left, box.offsetWidth - 18)) + 'px');
+      const br = box.getBoundingClientRect(), how = calm ? 'auto' : 'smooth';
+      if (br.bottom > window.innerHeight - 16) window.scrollBy({top: br.bottom - window.innerHeight + 28, behavior: how});
+      else if (a.top < 130) window.scrollBy({top: a.top - 150, behavior: how});
+    });
+  };
+  const write = c => {
+    const o = {c, n: node(c)}; ink.insertBefore(o.n, caret); buf.push(o);
+    if (isL(c)) return;
+    let s0 = buf.length - 1; while (s0 > 0 && isL(buf[s0 - 1].c) && !buf[s0 - 1].x) s0--;
+    const len = buf.length - 1 - s0;
+    if (len < 3) return;
+    if (skipNext) { skipNext = false; return; }
+    if (Math.random() < 0.22) stall(s0, len);
+  };
+  upd();
+  ta.addEventListener('input', e => {
+    const v = ta.value, type = e.inputType || ''; ta.value = ' ';
+    if (type.indexOf('delete') === 0 || v.length < 1) {
+      if (queue.length) queue.pop(); else if (!stalled && buf.length) buf.pop().n.remove();
+      upd(); return;
+    }
+    const data = type === 'insertLineBreak' ? '\n' : (e.data != null ? e.data : v.slice(1));
+    if (!data) return;
+    Array.from(data).slice(0, 400).forEach(c => queue.push(c));
+    upd(); if (!t && !stalled) pump();
+  });
+  return {
+    text: () => buf.filter(o => !o.x).map(o => o.c).join(''),
+    stats: () => ({stalls, guessed, swapped, behind: queue.length}),
+    focus: () => ta.focus(),
+    stop: () => { dead = true; clearTimeout(t); },
+    view: () => { const d = ink.cloneNode(true); const c = d.querySelector('.caret'); if (c) c.remove(); if (!buf.length) d.textContent = '(nothing written)'; return d; }
+  };
+}
+
+/* ---------- period 1: reading ---------- */
+function pre1(){
+  setBell('Period 1 · AP Literature');
+  between('Period 1 · AP Literature', 'Reading quiz', [
+    'Ms. Okafor hands out a short passage with three questions. You have ' + (state.sup.time ? '4 minutes 30 seconds' : '3 minutes') + '.',
+    state.sup.audio ? 'You have earbuds in. The passage will be read to you.' : 'The quiz covers a single paragraph. Most of the class will finish in about a minute. You know every word in it. Some of them you have only ever heard.'
+  ], 'Start the quiz', run1);
+}
+function run1(){
+  $('#keyBox').replaceChildren(keyLegend(PASSAGE));
+  $('#passage').replaceChildren(rich(PASSAGE));
+  renderQs($('#q1'), Q1, 'r');
+  show('p1');
+  if (state.sup.audio) say(PASSAGE);
+  const feed = state.sup.audio
+    ? [[0.25, 'You follow the story instead of the letters.'], [0.7, 'Ms. Okafor: "About a minute left."']]
+    : mod()
+    ? [[0.1, 'Pages are turning around you.'], [0.28, 'You skip a word and plan to come back for it.'], [0.45, 'The first quizzes get turned in.'], [0.6, 'You go back for the word. The sentence before it is gone.'], [0.72, 'Ms. Okafor: "About a minute left."'], [0.88, 'You start the paragraph again.']]
+    : [[0.1, 'Pages are turning around you.'], [0.28, 'Someone two rows over is already on the last question.'], [0.48, 'The first quiz gets turned in. Then three more.'], [0.68, 'Ms. Okafor: "About a minute left. Check your answers."'], [0.86, 'You are the only one still reading.']];
+  startTimer(180 * mult(), end1, feed);
+}
+function end1(){
+  const secs = Math.round(elapsed()); stopTimer(); hush();
+  const s = score(Q1, 'r'); state.run.read = Object.assign(s, {secs});
+  const mark = s.correct === 3 ? 'Good. 3/3'
+    : mod() ? (s.answered < 3 ? s.correct + '/3. Ran out of time again? Come see me at lunch.' : s.correct + '/3. Careful with the details.')
+    : (s.answered < 3 ? s.correct + '/3. Incomplete. Did you do the reading? See me.' : s.correct + '/3. Read more carefully.');
+  between('Period 1 · graded', 'Your quiz comes back', [
+    el('p', 'mark', mark),
+    'You answered ' + s.answered + ' of 3 and got ' + s.correct + ' right, in ' + secs + ' seconds.'
+  ], 'Go to third period', pre2);
+}
+
+/* ---------- period 2: lecture ---------- */
+let pad2 = null, lecStop = () => {};
+function pre2(){
+  setBell('Period 3 · Honors US History');
+  between('Period 3 · Honors US History', 'Lecture', [
+    'Mr. Lindqvist lectures for about a minute, with slides. He says each thing once. The slides carry more than he says, and he changes them before most people finish reading.',
+    'Listening is easy for you. You will understand every word he says. Reading his slides while he talks is the hard part.',
+    synth ? 'Turn your sound on. A short quiz follows.' : 'A short quiz follows.',
+    state.sup.notes ? 'He has also given you a printed outline to use during the quiz.' : ''
+  ].filter(Boolean), 'Start the lecture', run2);
+}
+function run2(){
+  const capBox = $('#lecCap'), sp = $('#speech'); capBox.hidden = true; sp.textContent = '';
+  $('#how2').replaceChildren(howBox((state.sup.audio || !state.inc.lit)
+    ? ['Listen to Mr. Lindqvist and read his slides as they change. A short quiz follows.']
+    : ['Listen to Mr. Lindqvist and read his slides as they change. A short quiz follows.', 'The slide text behaves like the reading passage. Hold your pointer on a moving word to work it out. On a touch screen, press and hold. The blur stands for losing the meaning, not for how the words look.']));
+  let i = -1, text = !synth, lt = null, over = false, cur = -1;
+  const showSlide = n => {
+    const sl = SLIDES[n], host = $('#slide'), h = el('h4'), ul = el('ul');
+    h.append(rich(sl.t)); sl.b.forEach(b => { const li = el('li'); li.append(rich(b)); ul.append(li); });
+    host.replaceChildren(h, ul, el('p', 'count', 'Slide ' + (n + 1) + ' of ' + SLIDES.length));
+  };
+  const feed = {2: 'The slide changes. You were halfway through the second line.', 4: 'New slide. You never finished reading the last one.', 6: 'You stop reading for a second to listen.', 7: 'He is already on the next slide.'};
+  const fallback = () => { text = true; capBox.hidden = false; sp.textContent = LECTURE[i]; };
+  const next = () => {
+    if (over) return;
+    i++;
+    if (i >= LECTURE.length) { lecStop(); quiz2(); return; }
+    if (SLIDE_AT[i] !== cur) { cur = SLIDE_AT[i]; showSlide(cur); }
+    if (feed[i]) $('#bellFeed').textContent = feed[i];
+    if (text) { fallback(); lt = setTimeout(next, 7000); return; }
+    say(LECTURE[i], () => { lt = setTimeout(next, 600); }, () => { fallback(); lt = setTimeout(next, 7000); });
+  };
+  lecStop = () => { over = true; clearTimeout(lt); hush(); };
+  stopTimer(); setBell('Period 3 · Honors US History', 'He does not repeat himself.');
+  show('p2'); next();
+}
+function quiz2(){
+  const nb = $('#notesBack'); nb.textContent = ''; nb.hidden = !state.sup.notes;
+  if (state.sup.notes) { nb.append(el('h3', null, "Mr. Lindqvist's outline")); const ul = el('ul', 'test'); OUTLINE.forEach(o => { const li = el('li'); li.append(rich(o)); ul.append(li); }); nb.append(ul); }
+  renderQs($('#q2'), Q2, 'h');
+  setBell('Period 3 · Honors US History', state.sup.notes ? 'Pop quiz. You have his outline.' : 'Pop quiz, from what you caught.');
+  show('p2q');
+  startTimer(75 * mult(), end2, [[0.6, 'Pencils go down around the room.']]);
+}
+function end2(){
+  stopTimer();
+  const s = score(Q2, 'h'); state.run.lec = s;
+  const mark = s.correct === 3 ? '3/3. Good.' : s.correct + '/3. Want a copy of my slides next time? Just ask.';
+  between('Period 3 · graded', 'Your quiz comes back', [
+    el('p', 'mark', mark),
+    'You answered ' + s.answered + ' of 3 and got ' + s.correct + ' right.'
+  ], 'Go to fifth period', pre3);
+}
+
+/* ---------- period 3: writing ---------- */
+let pad3 = null;
+function pre3(){
+  setBell('Period 5 · AP Literature');
+  between('Period 5 · AP Literature', 'Timed response', [
+    'Ms. Okafor puts a prompt on your desk. You have ' + (state.sup.time ? '4 minutes 30 seconds' : '3 minutes') + ' to write a paragraph.',
+    'You have a strong answer right away. It is shown to you on the next screen, the way it sits in your head. Your job is to get it onto the page.',
+    state.sup.typing ? 'You may type your response. Your hands keep up. Spelling still takes thought.' : 'Your handwriting is neat because you make it neat, one careful letter at a time, so your hand runs well behind your thoughts. Type as fast as you like and watch it follow.',
+    state.sup.typing ? '' : 'Any word can refuse to spell, even one you say every day. When your hand stops, the word is highlighted and your choices open right under it: work it out, or guess and keep going. On longer words you can also cross it out and use an easier one.'
+  ].filter(Boolean), 'Start writing', run3);
+}
+function run3(){
+  const p = $('#prompt3'); p.textContent = '';
+  const pp = el('p'); pp.append(rich(PROMPT)); p.append(el('h3', null, 'The prompt'), pp);
+  $('#idea3').replaceChildren(el('h3', null, 'What you want to say'), el('p', null, IDEA));
+  $('#how3').replaceChildren(howBox(state.sup.typing
+    ? ['The answer under \u201cWhat you want to say\u201d is already in your head. Type it into the box, in those words or your own.']
+    : ['The answer under \u201cWhat you want to say\u201d is already in your head. Type it onto the lined page, in those words or your own.', 'Type as fast as you like. Your hand writes one careful letter at a time, so it will fall behind.', 'When a word is highlighted, your hand has stopped on its spelling. Pick a choice in the box under the word to keep going.']));
+  if (pad3) pad3.stop();
+  pad3 = makePad($('#padHost3'), 'essayPad', 'Your written response');
+  show('p3');
+  if (state.sup.audio) say(PROMPT);
+  const feed = state.sup.typing
+    ? [[0.3, 'Your hands keep up with the sentence in your head.'], [0.85, 'Ms. Okafor: "Finish your thought."']]
+    : [[0.15, 'You know exactly what you want to say.'], [0.4, 'The sentence in your head is well ahead of your hand.'], [0.62, 'You trade a word you can’t spell for an easier one.'], [0.85, 'Ms. Okafor: "Finish your thought."']];
+  startTimer(180 * mult(), end3, feed);
+}
+function end3(){
+  stopTimer(); hush(); pad3.stop();
+  const w = words(pad3.text()), st = pad3.stats(), total = words(IDEA);
+  state.run.write = Object.assign({words: w}, st);
+  const mark = w >= 45 ? 'Clear position, developed. Good.' : (w >= 20 ? 'Strong idea. I want more of it. Watch the spelling.' : 'Not enough here to grade yet. Let’s talk.');
+  const a = el('div', 'sheet'), b = el('div', 'sheet'), pair = el('div', 'pair');
+  a.append(el('h3', null, 'What you had in your head'), el('p', null, IDEA));
+  b.append(el('h3', null, 'What reached the page'), pad3.view());
+  pair.append(a, b);
+  between('Period 5 · graded', 'Your response comes back', [
+    el('p', 'mark', mark), pair,
+    w + ' of about ' + total + ' words reached the page.' + (state.sup.typing ? ' Spelling slips while typing: ' + st.guessed + '.' : ' Spelling stopped your hand ' + st.stalls + (st.stalls === 1 ? ' time.' : ' times.') + ' You guessed ' + st.guessed + ' and crossed out ' + st.swapped + '. ' + st.behind + ' letters were still waiting when time ran out.'),
+    'The comment is about the page. Ms. Okafor never saw the paragraph in your head.'
+  ], state.inc.math ? 'Go to sixth period' : 'See the whole day', state.inc.math ? pre4 : debrief);
+}
+
+/* ---------- period 6: numbers ---------- */
+let swaps = 0;
+function numLegend(){
+  const box = howBox();
+  box.append(el('p', 'muted', 'You can read every digit. What you cannot trust is their order. A word in the wrong order looks wrong. A number in the wrong order is just another number, so nothing tells you that you misread it.'));
+  box.append(el('p', 'muted', 'Digits trade places, decimal points drift, and numbers that sit close together run into each other. Look more than once.'));
+  if (state.inc.lit) {
+    if (state.sup.audio) box.append(el('p', 'muted', 'Audio support covers the words in each question. The numbers are still yours to work out.'));
+    else box.append(el('p', 'muted', 'The words behave the way they did in first period. Hold a moving word to work it out.'));
+  }
+  return box;
+}
+function calcEval(s){
+  if (s[0] === '-') s = '0' + s;
+  const t = s.match(/\d*\.?\d+|[+\-*\/]/g);
+  if (!t || t.join('') !== s || t.length % 2 === 0) return NaN;
+  for (let k = 0; k < t.length; k++) { const isOp = /^[+\-*\/]$/.test(t[k]); if ((k % 2 === 1) !== isOp) return NaN; }
+  const st = [+t[0]];
+  for (let k = 1; k < t.length; k += 2) { const b = +t[k + 1], op = t[k]; if (op === '*') st[st.length - 1] *= b; else if (op === '/') st[st.length - 1] /= b; else st.push(op === '-' ? -b : b); }
+  return st.reduce((a, b) => a + b, 0);
+}
+function makeCalc(host){
+  host.textContent = '';
+  if (!state.sup.calc) return;
+  const OPS = {'/':'÷', '*':'×', '-':'−', '+':'+'};
+  const showOut = x => {
+    out.textContent = '';
+    x.split(/(\d*\.?\d+)/).forEach((t, i) => {
+      if (!t) return;
+      if (i % 2) { const n = el('span', 'num'); n.dataset.n = t; setNum(n, t); out.append(n); }
+      else out.append(document.createTextNode(t.replace(/[\/*\-]/g, c => OPS[c])));
+    });
+  };
+  const grid = el('div', 'calc'), out = el('output'); out.id = 'calcOut'; out.className = 'nums'; out.textContent = '0';
+  let expr = '', fresh = false;
+  grid.append(out);
+  ['7','8','9','/','4','5','6','*','1','2','3','-','0','.','=','+','C'].forEach(k => {
+    const b = el('button', 'quiet', /\d/.test(k) ? encN(k) : (OPS[k] || k)); b.type = 'button';
+    b.setAttribute('aria-label', k === 'C' ? 'Clear' : k === '=' ? 'Equals' : (OPS[k] || k));
+    b.onclick = () => {
+      if (k === 'C') { expr = ''; fresh = false; out.textContent = '0'; return; }
+      if (k === '=') {
+        const v = calcEval(expr);
+        if (!isFinite(v)) { expr = ''; out.textContent = 'Error'; return; }
+        expr = String(Math.round(v * 1e4) / 1e4); fresh = true; showOut(expr); return;
+      }
+      if (fresh && /[\d.]/.test(k)) expr = '';
+      fresh = false; expr += k; showOut(expr);
+    };
+    grid.append(b);
+  });
+  host.append(el('h3', null, 'Calculator'), grid);
+}
+function pre4(){
+  setBell('Period 6 · Honors Algebra 2');
+  between('Period 6 · Honors Algebra 2', 'Math quiz', [
+    'Ms. Varga hands out four short questions. You have ' + (state.sup.time ? '4 minutes 30 seconds' : '3 minutes') + '.' + (state.sup.calc ? ' You may use a calculator.' : ' No calculators on this one.'),
+    'You understand what a mean and a z-score are. You could explain them to a classmate.',
+    'The trouble is reading the numbers. Digits trade places as you look, decimal points drift, and a list of numbers runs together. Every wrong reading is still a real number, so nothing warns you.'
+  ], 'Start the quiz', run4);
+}
+function run4(){
+  $('#keyBox4').replaceChildren(numLegend());
+  renderQs($('#q4'), Q4, 'm', true);
+  makeCalc($('#calcHost'));
+  show('p4');
+  const feed = state.sup.calc
+    ? [[0.2, 'You key the numbers in one digit at a time.'], [0.5, 'The calculator gives an answer. You cannot tell whether it looks right.'], [0.72, 'Ms. Varga: "One minute."']]
+    : [[0.1, 'You know how to set up the first one.'], [0.3, 'You add the scores a second time and get a different total.'], [0.5, 'Around you, people are checking their work.'], [0.7, 'Ms. Varga: "One minute."'], [0.88, 'You pick the answer that looks most familiar.']];
+  startTimer(180 * mult(), end4, feed);
+}
+function end4(){
+  const secs = Math.round(elapsed()); stopTimer();
+  const s = score(Q4, 'm'); state.run.math = Object.assign(s, {secs});
+  const mark = s.correct === 4 ? '4/4. Good work.'
+    : mod() ? (s.answered < 4 ? s.correct + '/4. Not finished. Was it the time or the arithmetic? Come see me.' : s.correct + '/4. You know the method. Let’s find where the numbers slip.')
+    : (s.answered < 4 ? s.correct + '/4. Incomplete. These were the easy ones.' : s.correct + '/4. Careless errors. Slow down and show your work.');
+  between('Period 6 · graded', 'Your quiz comes back', [
+    el('p', 'mark', mark),
+    'You answered ' + s.answered + ' of 4 and got ' + s.correct + ' right, in ' + secs + ' seconds.'
+  ], 'See the whole day', debrief);
+}
+
+/* ---------- debrief ---------- */
+function supLabel(s){ const n = []; if (s.time) n.push('extra time'); if (s.audio) n.push('audio'); if (s.notes) n.push("teacher's notes"); if (s.typing) n.push('keyboard'); if (s.calc) n.push('calculator'); return n.length ? n.join(', ') : 'no supports'; }
+function debrief(){
+  state.runs.push({profile: state.profile, sup: Object.assign({}, state.sup), r: state.run});
+  setBell('After school');
+  const t = $('#results'); t.textContent = '';
+  const head = el('tr'); head.append(el('th', null, ''));
+  state.runs.forEach((x, i) => head.append(el('th', null, 'Run ' + (i + 1))));
+  head.append(el('th', 'ref', 'Fluent classmate (rough reference)'));
+  const thead = el('thead'); thead.append(head); t.append(thead);
+  const NR = 'Not run';
+  const rows = [
+    ['Reading quiz', x => x.r.read ? x.r.read.correct + ' of 3 right, ' + x.r.read.answered + ' answered, ' + x.r.read.secs + ' s' : NR, 'Done in about a minute'],
+    ['Lecture quiz', x => x.r.lec ? x.r.lec.correct + ' of 3 right' : NR, 'Most or all right'],
+    ['Written response', x => x.r.write ? x.r.write.words + ' of about ' + words(IDEA) + ' words on the page' : NR, 'Most of the idea, about 50 to 60 words'],
+    ['Times spelling stopped the hand', x => x.r.write ? (x.r.write.stalls || 0) : NR, 'Rare'],
+    ['Math quiz', x => x.r.math ? x.r.math.correct + ' of 4 right, ' + x.r.math.answered + ' answered, ' + x.r.math.secs + ' s' : NR, 'Done in about two minutes']
+  ];
+  const tb = el('tbody');
+  rows.forEach(rw => { const tr = el('tr'); tr.append(el('th', null, rw[0])); state.runs.forEach(x => tr.append(el('td', null, String(rw[1](x))))); tr.append(el('td', 'ref', rw[2])); tb.append(tr); });
+  t.append(tb);
+  show('debrief');
+}
+function syncIntro(){
+  $('#supTime').checked = state.sup.time; $('#supAudio').checked = state.sup.audio; $('#supNotes').checked = state.sup.notes; $('#supTyping').checked = state.sup.typing; $('#supCalc').checked = state.sup.calc;
+  $('#incLit').checked = state.inc.lit; $('#incMath').checked = state.inc.math;
+}
+function backToIntro(all, flip){
+  if (flip) state.profile = mod() ? 'severe' : 'moderate';
+  state.sup = {time: all, audio: all, notes: all, typing: all, calc: all}; syncIntro();
+  setBell('Before first bell'); show('intro');
+}
+
+let jumpTo = null;
+$('#startBtn').onclick = () => {
+  state.sup = {time: $('#supTime').checked, audio: $('#supAudio').checked, notes: $('#supNotes').checked, typing: $('#supTyping').checked, calc: $('#supCalc').checked};
+  state.inc = {lit: $('#incLit').checked, math: $('#incMath').checked};
+  if (!state.inc.lit && !state.inc.math) { state.inc = {lit: true, math: true}; syncIntro(); }
+  state.run = {}; const first = jumpTo || (state.inc.lit ? pre1 : pre4); jumpTo = null; first();
+};
+document.querySelectorAll('[data-jump]').forEach(b => { b.onclick = () => {
+  const j = b.dataset.jump, fn = {1: pre1, 2: pre2, 3: pre3, 4: pre4}[j];
+  if (!$('#intro').hidden) {
+    if (j === '4') $('#incMath').checked = true; else $('#incLit').checked = true;
+    jumpTo = fn; $('#startBtn').click(); return;
+  }
+  stopTimer(); lecStop(); hush();
+  if (j === '4') state.inc.math = true; else state.inc.lit = true;
+  if (!$('#debrief').hidden || !state.run) state.run = {};
+  fn();
+}; });
+$('#skipBtn').onclick = () => {
+  const cur = document.querySelector('.screen:not([hidden])');
+  const go = {between: () => $('#bwBtn').click(), p1: end1, p2: () => { lecStop(); quiz2(); }, p2q: end2, p3: end3, p4: end4}[cur ? cur.id : ''];
+  if (go) go();
+};
+$('#restartBtn').onclick = () => { stopTimer(); lecStop(); hush(); syncIntro(); setBell('Before first bell'); show('intro'); };
+$('#turnIn1').onclick = end1;
+$('#turnIn2').onclick = end2;
+$('#turnIn3').onclick = end3;
+$('#turnIn4').onclick = end4;
+$('#rerunSup').onclick = () => backToIntro(true, false);
+$('#rerunOther').onclick = () => backToIntro(false, false);
+})();
+</script>
+<script>if (window.self !== window.top) document.getElementById("backLink").hidden = true;</script>
+</body>
+</html>
